@@ -1,0 +1,15 @@
+image: "python:3.9-slim"
+
+before_script:
+  - python --version
+  - pip install -r requirements.txt
+
+stages:
+  - test
+
+testing:
+  stage: test
+  script:
+  - flake8 --max-line-length=120 data_validation_module/*.py
+  - python -m pytest -vvv --cov=data_validation_module
+  - coverage xml -o coverage.xml
