@@ -25,7 +25,7 @@ setup(
     description="A tool with different functions for the data validation",
     author="Lorenzo Olivier",
     author_email="lorenzo@cquest.ai",
-    url="git@gitlab.com:cquest1/data_validation_module.git",
+    url="git@gitlab.com:cquest1/prototypes/data_validation_module.git",
     packages=find_packages(exclude=["tests"]),
     include_package_data=True,
     install_requires=parse_requirements("requirements.txt"),
