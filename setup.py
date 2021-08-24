@@ -21,7 +21,7 @@ def parse_requirements(filename):
 
 setup(
     name="data_validation_module",
-    version="0.1.0",
+    version="0.1.1",
     description="A tool with different functions for the data validation",
     author="Lorenzo Olivier",
     author_email="lorenzo@cquest.ai",

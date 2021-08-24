@@ -59,7 +59,7 @@ def test_check_range_from_zero_to_hundred_0(data, result):
         ("000", "030", True),
         ("000", "000", True),
         ("000", BOTTOM_LIMIT, True),
-        ("005", "002", False),
+        ("001", "000", False),
         ("000", str(int(BOTTOM_LIMIT) + 1), False),
         ("000", "0030", False),
         ("000", "-123", False),
@@ -68,6 +68,7 @@ def test_check_range_from_zero_to_hundred_0(data, result):
         ("000", True, False),
         ("000", None, False),
         ("000", np.NaN, False),
+        ("000", "NaN", False),
     ],
 )
 def test_check_depth_string_zerofilled_0(top_limit, depth, result):
@@ -97,6 +98,8 @@ def test_check_type_string_0(data, result):
         (None, False),
         (np.NaN, False),
         (False, False),
+        ("0050030", False),
+        ("alp_num", False),
     ],
 )
 def test_check_string_format_nnn_mmm_0(data, result):
