@@ -36,9 +36,32 @@ def check_type_string(string):
 
 def check_string_format_nnn_mmm(string):
     if type(string) == str and len(string) == 7 and string[3] == "_":
-        if string[:3].isnumeric() and string[4:7].isnumeric():
-            return True
+        top_depth = string[:3]
+        bottom_depth = string[4:7]
+        if top_depth.isnumeric() and bottom_depth.isnumeric():
+            if float(top_depth) < float(bottom_depth):
+                return True
     return False
+
+
+def check_date_format_YYYY_mm_dd(date):
+    pass
+
+
+def check_dataset_depth_id_col(invalid_list, depht_id_column):
+    pass
+
+
+def check_dataset_date_id_col(invalid_list, date_id_column):
+    pass
+
+
+def check_sample_gdf(gdf):
+    pass
+
+
+def split_invalid_data_rows(df, data_dir):
+    pass
 
 
 if __name__ == "__main__":
