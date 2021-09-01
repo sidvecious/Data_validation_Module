@@ -1,0 +1,7 @@
+{
+    "test_df": {
+        "date_id": "date_id",
+        "geom_id": "geom_id",
+        "soil_texture": "soil_texture"
+    }
+}

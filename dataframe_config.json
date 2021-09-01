@@ -1,0 +1,15 @@
+{
+    "sample_gdf": {
+        "date_id": "date_id",
+        "geom_id": "geom_id"
+    },
+    "sample_gdf2": {
+        "structure": "gdf",
+        "dataset_geom_id": "positive_int(df.dataset_geom_id)",
+        "date_id": "date_id",
+        "depth_id": "str_format_nnn_mmm",
+        "geom_error_m": "positive_int_or_none",
+        "date_error_d": "positive_int_or_none",
+        "depth_error_mm": "positive_int_or_none"
+    }
+}
