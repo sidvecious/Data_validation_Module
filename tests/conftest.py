@@ -1,8 +1,5 @@
-import json
-
 import pandas as pd
 import pytest
-from file_path_tools.search_and_find import find_closest_filepath
 
 
 # test_data for test_df
@@ -15,11 +12,12 @@ def test_data():
     }
 
 
-# is used in ...,
+# is used in test_iterate_data_config
 # and for create column test and test_df_with_invalid_rows
 @pytest.fixture(scope="module")
-def test_df():
-    return pd.DataFrame(test_data)
+def test_df(test_data):
+    test_df = pd.DataFrame(test_data)
+    return test_df
 
 
 # is used in test_check_sample_gdf
@@ -29,6 +27,7 @@ def test_df_with_invalid_column_filled(test_df):
     df.insert(2, "invalid_data", [1, 1, 1, 0])
 
 
+# is used in test_split_invalid_data_row_1
 @pytest.fixture(scope="module")
 def test_valid_df(test_df):
     valid_df = test_df.copy(deep=True)
@@ -36,19 +35,12 @@ def test_valid_df(test_df):
     return valid_df()
 
 
+# is used in test_split_invalid_data_row_0
 @pytest.fixture(scope="module")
 def test_invalid_df(test_df):
     invalid_df = test_df.copy(deep=True)
     invalid_df.drop([4], inplace=True)
     return invalid_df()
-
-
-# not used for the moment
-# @pytest.fixture(scope="module")
-# def test_df_with_invalid_column_empty(test_df):
-#    df = test_df.copy(deep=True)
-#    df['invalid_data'] = 0
-#    return df
 
 
 # used in test_check_dataset_depth_id_col
@@ -60,7 +52,8 @@ def test_invalid_list_depth_id():
 # used in test_check_dataset_depth_id_col
 @pytest.fixture(scope="module")
 def test_depth_id_column(test_df):
-    return test_df.depth_id
+    df = test_df.copy(deep=True)
+    return df.depth_id
 
 
 # used in test_check_date_id_col
@@ -71,8 +64,9 @@ def test_invalid_list_date_id():
 
 # used in test_check_date_id_col
 @pytest.fixture(scope="module")
-def test_date_id_column(test__df):
-    return test_df.date_id
+def test_date_id_column(test_df):
+    df = test_df.copy(deep=True)
+    return df.date_id
 
 
 # used in test_check_soil_texture_col
@@ -84,30 +78,73 @@ def test_invalid_soil_texture():
 # used in test_check_soil_texture_col
 @pytest.fixture(scope="module")
 def test_soil_texture_column(test_df):
-    return test_df.soil_texture
+    df = test_df.copy(deep=True)
+    return df.soil_texture
 
 
+# is used in test_iterate_data_config and test_read_json_file
+# the structure of json is:
+# single dataframe-> columns of dataframe -> name, type, validation function
 @pytest.fixture(scope="module")
-def test_data_config():
+def test_dataframe_config():
     return {
         "test_df": {
-            "date_id": "date_id",
-            "geom_id": "geom_id",
-            "soil_texture": "soil_texture",
-        }
+            "columns": [
+                {
+                    "name": "date_id",
+                    "type": "str",
+                    "validation": ["check_date_format_YYYY_mm_dd"],
+                },
+                {
+                    "name": "depth_id",
+                    "type": "str",
+                    "validation": ["check_string_format_nnn_mmm"],
+                },
+                {
+                    "name": "soil_texture",
+                    "type": "str",
+                    "validation": ["check_type_of_row"],
+                },
+            ]
+        },
+        "test_df2": {
+            "columns": [
+                {
+                    "name": "date_id",
+                    "type": "str",
+                    "validation": "check_date_format_YYYY_mm_dd",
+                },
+                {"name": "depth_id", "type": "str", "validation": "check_positive_int"},
+            ]
+        },
     }
 
 
+# used in test_iterate_data_config, test_check_dataframe
 @pytest.fixture(scope="module")
-def test_df_name_control():
+def test_df_name():
     return "test_df"
 
 
+# used in test_split_invalid_data_row_0
 @pytest.fixture(scope="module")
-def test_invalid_data():
+def test_invalid_list():
     return [1, 1, 1, 0]
 
 
+# used in test_read_json_file
 @pytest.fixture(scope="module")
 def test_string_dataframe_config_json():
     return "test_dataframe_config.json"
+
+
+# used in test_check_dataset_depth_id_col_0,
+# test_check_date_id_col_0,
+# test_check_soil_texture_col_0
+@pytest.fixture(scope="module")
+def test_mapped_function():
+    from data_validation_module.data_validation_module.dictionaries import (
+        DATAFRAME_DICT,
+    )
+
+    return DATAFRAME_DICT

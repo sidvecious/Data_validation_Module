@@ -21,10 +21,10 @@ def parse_requirements(filename):
 
 setup(
     name="data_validation_module",
-    version="0.1.1",
+    version="0.1.2",
     description="A tool with different functions for the data validation",
     author="Lorenzo Olivier",
-    author_email="lorenzo@cquest.ai",
+    author_email="lorenzo@seqana.com",
     url="git@gitlab.com:cquest1/prototypes/data_validation_module.git",
     packages=find_packages(exclude=["tests"]),
     include_package_data=True,

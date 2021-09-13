@@ -1,7 +1,41 @@
 {
     "test_df": {
-        "date_id": "date_id",
-        "geom_id": "geom_id",
-        "soil_texture": "soil_texture"
+        "columns": [
+            {
+                "name": "date_id",
+                "type": "str",
+                "validation": [
+                    "check_date_format_YYYY_mm_dd"
+                ]
+            },
+            {
+                "name": "depth_id",
+                "type": "str",
+                "validation": [
+                    "check_string_format_nnn_mmm"
+                ]
+            },
+            {
+                "name": "soil_texture",
+                "type": "str",
+                "validation": [
+                    "check_type_of_row"
+                ]
+            }
+        ]
+    },
+    "test_df2": {
+        "columns": [
+            {
+                "name": "date_id",
+                "type": "str",
+                "validation": "check_date_format_YYYY_mm_dd"
+            },
+            {
+                "name": "depth_id",
+                "type": "str",
+                "validation": "check_positive_int"
+            }
+        ]
     }
 }
