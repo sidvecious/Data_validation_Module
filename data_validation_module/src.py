@@ -1,8 +1,9 @@
 """
-This is the main, with the functions that work with the dataframe or the columns
+This is the main function,
+
+with the functions that work with the dataframe or the columns
 """
 import json
-
 import numpy as np
 import pandas as pd
 
@@ -43,7 +44,7 @@ def iterate_column(
 # and i splitted because data config is too big and has too many functionality
 # DATAFRAME_DICT is the dictionary that I map all the validate functions
 # THIS FUNCTION HASN'T TEST
-def harmonize_column(
+def validate_column(
     df_name: str, fn_name: str, series: pd.Series, type_series: str
 ) -> list:
     from data_validation_module.data_validation_module.dictionaries import (
@@ -83,7 +84,7 @@ def iterate_data_config(df_name: str, dataframe_config: dict, df: pd.DataFrame) 
                 "validation"
             ]:  # fn_name is the single validation function
                 invalid_list.extend(
-                    harmonize_column(df_name, fn_name, series, type_series)
+                    validate_column(df_name, fn_name, series, type_series)
                 )
                 invalid_list = list(set(invalid_list))
 

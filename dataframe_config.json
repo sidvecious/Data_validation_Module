@@ -1,17 +1,17 @@
 {
     "sample_gdf": {
-        "rows": [
+        "columns": [
             {
                 "name": "date_id",
                 "type": "str",
-                "harmony": [
+                "validation": [
                     "check_date_format_YYYY_mm_dd"
                 ]
             },
             {
                 "name": "geom_id",
                 "type": "float",
-                "harmony": [
+                "validation": [
                     "check_positive_int",
                     "check_none"
                 ]
@@ -19,16 +19,16 @@
         ]
     },
     "sample_gdf2": {
-        "rows": [
+        "columns": [
             {
                 "name": "date_id",
                 "type": "str",
-                "harmony": "check_date_format_YYYY_mm_dd"
+                "validation": "check_date_format_YYYY_mm_dd"
             },
             {
                 "name": "geom_id",
                 "type": "int64",
-                "harmony": "check_positive_int"
+                "validation": "check_positive_int"
             }
         ]
     }

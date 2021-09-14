@@ -61,27 +61,27 @@ def iterate_data_config(df_name, df, data_config):
     invalid_list = []
     if df_name in data_config:
         df_config = data_config[df_name]
-        for row in df_config["rows"]:
-            type_series = row["type"]
+        for column in df_config["columns"]:
+            type_series = column["type"]
             print(f"type_series is type: {type(type_series)}")
-            series = df[row["name"]]
-            if type(row["harmony"]) is not list:
-                print("sorry i don't understand you")
+            series = df[column["name"]]
+            if type(column["validation"]) is not list:
+                print("sorry i dont understand you")
                 continue
-            for fnname in row["harmony"]:
+            for fn_name in column["validation"]:
                 invalid_list.extend(
-                    harmonize_column(df_name, fnname, series, type_series)
+                    harmonize_column(df_name, fn_name, series, type_series)
                 )
                 invalid_list = list(set(invalid_list))
     return invalid_list
 
 
-def harmonize_column(df_name, fnname, series, type_series):
-    if fnname in DICT:
-        mapped_function = DICT[fnname]
+def harmonize_column(df_name, fn_name, series, type_series):
+    if fn_name in DICT:
+        mapped_function = DICT[fn_name]
         return iterate_column(series, mapped_function, type_series)
     else:
-        print(f"warning: unable to find {fnname} for {df_name}")
+        print(f"warning: unable to find {fn_name} for {df_name}")
         return []
 
 

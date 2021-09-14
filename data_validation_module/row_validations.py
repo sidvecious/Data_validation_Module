@@ -1,6 +1,9 @@
+'''
+file with the row validation functions
+'''
+
 import re
 from datetime import datetime
-
 import numpy as np
 from loguru import logger
 

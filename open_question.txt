@@ -3,15 +3,18 @@ Open question for data_validation_module:
 
 A - DATAFRAME:
     1 - Bug in src.py: import of the validation functions required
-    2 - iterate_data_config is too big, must be splitted?
-    3 - iterate_column has tests only for 3 validation function,
+    2 - iterate_data_config is too big and has different functionality
+        must be split?
+    3 - Bug in src.py: the import of the dictionary DTATAFRAME_DICT is not pythonic
+    4 - iterate_column has tests only for 3 validation function,
         other 6 are needed
-    4 - the functions: check_dataframe, split_invalid_data_rows,
-        harmonize_column, and iterate_column are not tested!
-    5 - the numeric columns from the GeoDataFrame are in soil_harmonization and
+    5 - the functions: check_dataframe, split_invalid_data_rows,
+        validate_column, and iterate_column are not tested!
+    6 - the numeric columns from the GeoDataFrame are in soil_harmonization and
         upload_to_posgresql: String that represent numbers.
         This is not the expected value! is needed a change of values or
         additional functions in this module.
+
 
 B - SERIES:
     1 - functions and tests for only Series are not included

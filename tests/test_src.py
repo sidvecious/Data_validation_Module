@@ -1,7 +1,7 @@
 import pandas as pd
 from data_validation_module.data_validation_module.src import (
     check_dataframe,
-    harmonize_column,
+    validate_column,
     iterate_column,
     iterate_data_config,
     read_json_file,
@@ -103,8 +103,8 @@ def test_check_dataframe(
     )
     assert df.shape == test_valid_df.shape
 
-# harmonize column need to be tested
-def test_harmonize_column():
+# validate_column need to be tested
+def test_validate_column():
     pass
 
 
