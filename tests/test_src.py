@@ -206,7 +206,7 @@ def test_validate_column_depth_id(
     test_depth_id_function_name: str,
 ):
     invalid_list_index = validate_column(
-        "depth_id", test_depth_id_function_name, test_depth_id_column, "str"
+        test_depth_id_function_name, test_depth_id_column, "str"
     )
     diff = set(invalid_list_index) ^ set(test_invalid_list_depth_id)
     assert not diff

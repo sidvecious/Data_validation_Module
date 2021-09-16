@@ -4,28 +4,26 @@ This is the main function,
 with the functions that work with the dataframe or the columns
 """
 import json
+from collections.abc import Callable
+from typing import Dict, List, Optional
 
-import data_validation_module.row_validations as validation
 import numpy as np
 import pandas as pd
+from data_validation_module.row_validations import (
+    check_date_format_YYYY_mm_dd,
+    check_double_90,
+    check_double_180,
+    check_none_and_nan,
+    check_positive_int,
+    check_positive_int_from_one,
+    check_positive_int_or_Null,
+    check_range_from_zero_to_hundred,
+    check_string_available_for_database,
+    check_string_format_nnn_mmm,
+    check_type_of_row,
+)
 from file_path_tools.search_and_find import find_closest_filepath
 from loguru import logger
-
-check_date_format_YYYY_mm_dd = getattr(validation, "check_date_format_YYYY_mm_dd")
-check_string_format_nnn_mmm = getattr(validation, "check_string_format_nnn_mmm")
-check_type_of_row = getattr(validation, "check_type_of_row")
-check_positive_int = getattr(validation, "check_positive_int")
-check_positive_int_from_one = getattr(validation, "check_positive_int_from_one")
-check_none_and_nan = getattr(validation, "check_none_and_nan")
-check_range_from_zero_to_hundred = getattr(
-    validation, "check_range_from_zero_to_hundred"
-)
-check_positive_int_or_Null = getattr(validation, "check_positive_int_or_Null")
-check_double_90 = getattr(validation, "check_double_90")
-check_double_180 = getattr(validation, "check_double_180")
-check_string_available_for_database = getattr(
-    validation, "check_string_available_for_database"
-)
 
 VALID_DATA = 1
 INVALID_DATA = 0
@@ -64,35 +62,43 @@ def find_invalid_data_indices(
     type_series: str
     # mapped function is a function this this structure :
     # <function {name_of_function} at 0x00001e8D...
-) -> list:
+) -> List[int]:
     logger.debug(mapped_function)
     invalid_index_list = np.unique(
         np.where(series.apply(lambda x: not mapped_function(x, type_series)))
-    )
+    ).tolist()
     return invalid_index_list
 
 
 # this is in origin part of iterate_data_config,
 # and i split because data config is too big and has too many functionality
 # DATAFRAME_DICT is the dictionary that I map all the validate functions
-# THIS FUNCTION HASN'T TEST
 def validate_column(
-    df_name: str, fn_name: str, series: pd.Series, type_series: str
+    validation_function_name: str,
+    series: pd.Series,
+    type_series: str,
+    validation_config: Optional[Dict[str, Callable]] = None,
 ) -> list:
     # logger.info(f"fn_name: {fn_name}")
     # logger.info(f"fn_name: {type(fn_name)}")
     # logger.info(f"dict: {DATAFRAME_DICT} ")
-    if fn_name in DATAFRAME_DICT:
-        mapped_function = DATAFRAME_DICT[fn_name]
-        return find_invalid_data_indices(series, mapped_function, type_series)
+    if not validation_config:
+        validation_config = DATAFRAME_DICT
+    if validation_function_name in list(validation_config.keys()):
+        validation_function = validation_config[validation_function_name]
+        return find_invalid_data_indices(series, validation_function, type_series)
     else:
-        logger.info(f"warning: unable to find {fn_name} for {df_name}")
+        logger.info(
+            f"warning: unable to find {validation_function_name} in the provided config."
+        )
         return []
 
 
 # this function iterate through the dataframe_config, and check if the df exist
 # also iterate through the df and iterate the column
-def iterate_data_config(df_name: str, dataframe_config: dict, df: pd.DataFrame) -> list:
+def iterate_data_config(
+    df_name: str, dataframe_config: dict, df: pd.DataFrame
+) -> List[int]:
     invalid_index_list = []
     if df_name in dataframe_config:
         df_config = dataframe_config[df_name]
@@ -108,7 +114,7 @@ def iterate_data_config(df_name: str, dataframe_config: dict, df: pd.DataFrame) 
             for fn_name in column["validation"]:
                 # fn_name is the single validation function
                 invalid_index_list.extend(
-                    validate_column(df_name, fn_name, series, type_series)
+                    validate_column(fn_name, series, type_series, DATAFRAME_DICT)
                 )
                 invalid_index_list = list(set(invalid_index_list))
 
@@ -118,10 +124,10 @@ def iterate_data_config(df_name: str, dataframe_config: dict, df: pd.DataFrame) 
 # final function: create the invalid_data csv and the cleaned dataframe with the validate rows
 def split_invalid_data_rows(df: pd.DataFrame, output_csv_dir: str) -> pd.DataFrame:
     data_dir = find_closest_filepath(output_csv_dir)
-    logger.info(f"{df.shape[0]} total rows in the DataFrame")
+    logger.info(f"{len(df.index)} total rows in the DataFrame")
     df[df[VALID_DATA_COLUMN] == 0].to_csv(data_dir / "invalid_rows.csv")
     df_clean = df[df[VALID_DATA_COLUMN] == 1]
-    logger.info(f"{df_clean.shape[0]} rows valid in the DataFrame")
+    logger.info(f"{len(df_clean.index)} rows valid in the DataFrame")
     return df_clean
 
 
