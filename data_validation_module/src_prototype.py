@@ -11,7 +11,6 @@ from file_path_tools.search_and_find import find_closest_filepath
 
 
 def check_all(i, type_i):
-    print(type(type_i))
     return type(i).__name__ == type_i
 
 
@@ -42,15 +41,13 @@ def main(df_name, df, config_path):
     data_config = initialize_json(config_path)
     invalid_list = iterate_data_config(df_name, df, data_config)
     valid_data = 0
-    if "invalid_data" not in df:
-        df["invalid_data"] = valid_data
+    df["invalid_data"] = valid_data
     invalid_data = 1
     df.loc[invalid_list, "invalid_data"] = invalid_data
     return split_invalid_data_rows(df)
 
 
 def iterate_column(series, mapped_function, type_series):
-    print(f"mapped_function:{mapped_function}")
     invalid_list = np.unique(
         np.where(series.apply(lambda x: not mapped_function(x, type_series)))
     )
@@ -63,7 +60,6 @@ def iterate_data_config(df_name, df, data_config):
         df_config = data_config[df_name]
         for column in df_config["columns"]:
             type_series = column["type"]
-            print(f"type_series is type: {type(type_series)}")
             series = df[column["name"]]
             if type(column["validation"]) is not list:
                 print("sorry i dont understand you")
@@ -77,6 +73,9 @@ def iterate_data_config(df_name, df, data_config):
 
 
 def harmonize_column(df_name, fn_name, series, type_series):
+    print(fn_name)
+    print(type(fn_name))
+    print(DICT)
     if fn_name in DICT:
         mapped_function = DICT[fn_name]
         return iterate_column(series, mapped_function, type_series)

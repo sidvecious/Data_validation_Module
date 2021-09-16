@@ -3,7 +3,7 @@ import datetime as datetime
 import numpy as np
 import pandas as pd
 import pytest
-from data_validation_module.data_validation_module.row_validations import (
+from data_validation_module.row_validations import (
     check_date_format_YYYY_mm_dd,
     check_double_90,
     check_double_180,
@@ -19,7 +19,7 @@ from data_validation_module.data_validation_module.row_validations import (
 
 @pytest.mark.parametrize(
     "data, result",
-    [(np.NaN, False), (1, True), (True, True)],
+    [(np.NaN, False), (1, True), (True, True), ("aaa", True), (None, True)],
 )
 def test_check_none_0(data, result: bool):
     assert check_none(data, float) == result
@@ -28,55 +28,59 @@ def test_check_none_0(data, result: bool):
 @pytest.mark.parametrize(
     "data, result",
     [
-        (np.float64(23.456), True),
-        (23.456, False),
+        (float(23.456), True),
+        (23.456, True),
         (45, False),
         ("a45", False),
         (None, False),
-        (np.int64(23.456), False),
-        (np.float64(23), True),
-        (np.NaN, False),
+        (23.456, True),
+        (float(23), True),
+        (None, False),
+        (np.NaN, True),
+        # np.NaN become False in a separate "check_none" function
     ],
 )
 def test_check_all_0(data, result: bool):
-    assert check_type_of_row(data, "float64") == result
+    assert check_type_of_row(data, "float") == result
 
 
 @pytest.mark.parametrize(
     "data, result",
     [
-        (np.float64(23.456), True),
-        (23.456, False),
+        (float(23.456), True),
+        (23.456, True),
         (45, False),
         ("a45", False),
         (None, False),
-        (np.int64(23.456), False),
-        (np.float64(23), True),
-        (np.NaN, False),
+        (int(23.456), False),
+        (float(23), True),
+        (np.NaN, True),
+        # np.NaN become False in a separate "check_none" function
     ],
 )
-def test_check_type_of_row_float64_0(data, result: bool):
-    assert check_type_of_row(data, "float64") == result
+def test_check_type_of_row_float_0(data, result: bool):
+    assert check_type_of_row(data, "float") == result
 
 
 @pytest.mark.parametrize(
     "data, result",
     [
-        (np.float64(23.45), True),
-        (np.float64(0.0), True),
-        (np.float64(100.0), True),
-        (np.float64(102.2), False),
-        (np.float64(-12.34), False),
+        (23.45, True),
+        (0.0, True),
+        (100.0, True),
+        (102.2, False),
+        (-12.34, False),
         ("23", False),
-        (np.int64(34), False),
+        (34, False),
         (True, False),
         (None, False),
-        (np.NaN, False),
         ("alp_num", False),
+        (np.NaN, False),
+        # np.NaN become False in a separate "check_none" function
     ],
 )
 def test_check_range_from_zero_to_hundred_0(data, result: bool):
-    assert check_range_from_zero_to_hundred(data, "float64") == result
+    assert check_range_from_zero_to_hundred(data, "float") == result
 
 
 @pytest.mark.parametrize(
@@ -136,18 +140,18 @@ def test_check_date_format_YYYY_mm_dd_0(data, result: bool):
 @pytest.mark.parametrize(
     "data, result",
     [
-        (np.int64(45), True),
+        (45, True),
         (23.456, False),
-        (45, False),
+        (float(45), False),
         ("a45", False),
         (None, False),
-        (np.int64(23.456), True),
-        (np.float64(23), False),
+        (23.456, False),
+        (float(23), False),
         (np.NaN, False),
     ],
 )
-def test_check_type_of_row_int64_0(data, result: bool):
-    assert check_type_of_row(data, "int64") == result
+def test_check_type_of_row_int_0(data, result: bool):
+    assert check_type_of_row(data, "int") == result
 
 
 @pytest.mark.parametrize(
@@ -169,11 +173,11 @@ def test_check_type_of_row_timestamp_0(data, result: bool):
 @pytest.mark.parametrize(
     "coordinate, result",
     [
-        (np.float64(45.1), True),
-        (np.float64(-45.1), True),
-        (np.int64(45), False),
-        (np.float64(91.1), False),
-        (np.float64(-91.1), False),
+        (45.1, True),
+        (-45.1, True),
+        (45, False),
+        (91.1, False),
+        (-91.1, False),
         (None, False),
         (np.NaN, False),
         (False, False),
@@ -181,17 +185,17 @@ def test_check_type_of_row_timestamp_0(data, result: bool):
     ],
 )
 def test_check_double_90(coordinate, result: bool):
-    assert check_double_90(coordinate, "float64") == result
+    assert check_double_90(coordinate, "float") == result
 
 
 @pytest.mark.parametrize(
     "coordinate, result",
     [
-        (np.float64(123.4), True),
-        (np.float64(-123.4), True),
-        (np.int64(45), False),
-        (np.float64(191.1), False),
-        (np.float64(-191.1), False),
+        (123.4, True),
+        (-123.4, True),
+        (45, False),
+        (191.1, False),
+        (-191.1, False),
         (None, False),
         (np.NaN, False),
         (False, False),
@@ -199,45 +203,44 @@ def test_check_double_90(coordinate, result: bool):
     ],
 )
 def test_check_double_180(coordinate, result: bool):
-    assert check_double_180(coordinate, "float64") == result
+    assert check_double_180(coordinate, "float") == result
 
 
 @pytest.mark.parametrize(
     "data, result",
     [
-        (np.int64(-23), False),
-        (np.int64(1), True),
-        (np.int64(0), False),
+        (-23, False),
+        (1, True),
+        (0, False),
         (23.456, False),
-        (45, False),
+        (45.0, True),
         ("a45", False),
         (None, False),
-        (np.int64(23.456), True),
-        (np.float64(23), False),
+        (int(23.456), True),
+        (float(23.34), False),
         (np.NaN, False),
     ],
 )
 def test_check_positive_int_0(data, result: bool):
-    assert check_positive_int(data, "int64") == result
+    assert check_positive_int(data, "int") == result
 
 
 @pytest.mark.parametrize(
     "data, result",
     [
-        (np.int64(-23), False),
+        (-23, False),
         (0, False),
-        (np.int64(45), True),
+        (45, True),
         (23.456, False),
-        (45, False),
         ("a45", False),
         (None, True),
-        (np.int64(23.456), True),
-        (np.float64(23), False),
+        (int(23.456), True),
+        (float(23), False),
         (np.NaN, False),
     ],
 )
 def test_check_positive_int_or_Null_0(data, result: bool):
-    assert check_positive_int_or_Null(data, "int64") == result
+    assert check_positive_int_or_Null(data, "int") == result
 
 
 @pytest.mark.parametrize(

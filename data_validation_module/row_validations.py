@@ -1,9 +1,10 @@
-'''
+"""
 file with the row validation functions
-'''
+"""
 
 import re
 from datetime import datetime
+
 import numpy as np
 from loguru import logger
 
@@ -17,15 +18,23 @@ def check_type_of_row(data, data_type) -> bool:
         return False
 
 
-# this function dela with the np.NaN is called only when the expected type is an instance of numpy
+# this return False with np.NaN
+# is called only when the expected type is an instance of numpy
+# for exclude np.NaN
 def check_none(data, _type_data):
-    return not np.isnan(data)
+    logger.info(f"data: {data}")
+    if check_type_of_row(data, "float") and np.isnan(data):
+        return False
+    # elif data is None:
+    #    return False
+    # this code is comment now but could be necessary if we want exclude also None
+    return True
 
 
 # for: upload_ready_data, in the target columns with 'percent'
 def check_range_from_zero_to_hundred(percent, data_type) -> bool:
     if check_type_of_row(percent, data_type):
-        if 0 <= percent <= 100:
+        if 0.0 <= percent <= 100.0:
             return True
     return False
 
@@ -72,12 +81,20 @@ def check_double_180(number, data_type) -> bool:
 
 # for: dataset_geom_id
 def check_positive_int(number, data_type) -> bool:
-    if check_type_of_row(number, data_type):
+    logger.info(f"number: {number}")
+    logger.info(f"data_type: {data_type}")
+    logger.info(f"type of number {type(number)}")
+    if check_type_of_row(number, "float"):
+        if number is not np.isnan(number):
+            if number >= 1 and number.is_integer():
+                return True
+    elif check_type_of_row(number, "int"):
         if number >= 1:
             return True
     return False
 
 
+# THIS FUNCTION HAS A KNOW BAG!
 # for: every columns with an ID in upload_to_posgresql
 def check_positive_int_or_Null(number, data_type) -> bool:
     if check_type_of_row(number, data_type):
