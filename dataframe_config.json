@@ -1,5 +1,5 @@
 {
-    "sample_gdf": {
+    "df_upload_ready_data_deduplicated_NA2018": {
         "columns": [
             {
                 "name": "date_id",
@@ -9,26 +9,47 @@
                 ]
             },
             {
-                "name": "geom_id",
-                "type": "float",
-                "validation": [
-                    "check_positive_int",
-                    "check_none"
-                ]
-            }
-        ]
-    },
-    "sample_gdf2": {
-        "columns": [
-            {
-                "name": "date_id",
+                "name": "depth_id",
                 "type": "str",
-                "validation": "check_date_format_YYYY_mm_dd"
+                "validation": [
+                    "check_string_format_nnn_mmm"
+                ]
             },
             {
-                "name": "geom_id",
-                "type": "int64",
-                "validation": "check_positive_int"
+                "name": "dataset_geom_id",
+                "type": "int",
+                "validation": [
+                    "check_positive_int_from_one"
+                ]
+            },
+            {
+                "name": "bulk_density_g_cm3",
+                "type": "float",
+                "validation": [
+                    "check_none_and_nan",
+                    "check_type_of_row"
+                ]
+            },
+            {
+                "name": "geom_error_m",
+                "type": "int",
+                "validation": [
+                    "check_positive_int_or_Null"
+                ]
+            },
+            {
+                "name": "date_error_d",
+                "type": "int",
+                "validation": [
+                    "check_positive_int_or_Null"
+                ]
+            },
+            {
+                "name": "depth_error_mm",
+                "type": "int",
+                "validation": [
+                    "check_positive_int_or_Null"
+                ]
             }
         ]
     }

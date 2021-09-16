@@ -168,7 +168,7 @@ def test_dataframe_config():
                 {
                     "name": "db_id",
                     "type": "int",
-                    "validation": ["check_none", "check_positive_int"],
+                    "validation": ["check_none_and_nan", "check_positive_int"],
                 },
             ]
         },
@@ -177,7 +177,7 @@ def test_dataframe_config():
                 {
                     "name": "soc_percent",
                     "type": "float",
-                    "validation": ["check_none", "check_range_from_zero_to_hundred"],
+                    "validation": ["check_range_from_zero_to_hundred"],
                 },
                 {
                     "name": "tolerance",

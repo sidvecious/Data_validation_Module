@@ -21,12 +21,12 @@ def check_type_of_row(data, data_type) -> bool:
 # this return False with np.NaN
 # is called only when the expected type is an instance of numpy
 # for exclude np.NaN
-def check_none(data, _type_data):
-    logger.info(f"data: {data}")
+def check_none_and_nan(data, _data_type):
+    # logger.info(f"data: {data}")
     if check_type_of_row(data, "float") and np.isnan(data):
         return False
-    # elif data is None:
-    #    return False
+    elif data is None:
+        return False
     # this code is comment now but could be necessary if we want exclude also None
     return True
 
@@ -80,10 +80,19 @@ def check_double_180(number, data_type) -> bool:
 
 
 # for: dataset_geom_id
-def check_positive_int(number, data_type) -> bool:
-    logger.info(f"number: {number}")
-    logger.info(f"data_type: {data_type}")
-    logger.info(f"type of number {type(number)}")
+def check_positive_int(number, _data_type) -> bool:
+    if check_type_of_row(number, "float"):
+        if number is not np.isnan(number):
+            if number >= 0 and number.is_integer():
+                return True
+    elif check_type_of_row(number, "int"):
+        if number >= 0:
+            return True
+    return False
+
+
+# for check_positive_int_or_null
+def check_positive_int_from_one(number, _data_type) -> bool:
     if check_type_of_row(number, "float"):
         if number is not np.isnan(number):
             if number >= 1 and number.is_integer():
@@ -94,15 +103,15 @@ def check_positive_int(number, data_type) -> bool:
     return False
 
 
-# THIS FUNCTION HAS A KNOW BAG!
 # for: every columns with an ID in upload_to_posgresql
 def check_positive_int_or_Null(number, data_type) -> bool:
-    if check_type_of_row(number, data_type):
-        return True if number >= 1 else False
-    elif number is None:
+    # logger.info(f"number: {number}")
+    # logger.info(f"data_type: {data_type}")
+    # logger.info(f"type of number {type(number)}")
+    if check_none_and_nan(number, data_type) is False:
         return True
     else:
-        return False
+        return check_positive_int_from_one(number, data_type)
 
 
 # for: check_und_upload_samples, upload_to_postgresql

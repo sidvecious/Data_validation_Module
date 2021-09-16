@@ -7,8 +7,9 @@ from data_validation_module.row_validations import (
     check_date_format_YYYY_mm_dd,
     check_double_90,
     check_double_180,
-    check_none,
+    check_none_and_nan,
     check_positive_int,
+    check_positive_int_from_one,
     check_positive_int_or_Null,
     check_range_from_zero_to_hundred,
     check_string_available_for_database,
@@ -19,10 +20,10 @@ from data_validation_module.row_validations import (
 
 @pytest.mark.parametrize(
     "data, result",
-    [(np.NaN, False), (1, True), (True, True), ("aaa", True), (None, True)],
+    [(np.NaN, False), (1, True), (True, True), ("aaa", True), (None, False)],
 )
-def test_check_none_0(data, result: bool):
-    assert check_none(data, float) == result
+def test_check_none_and_nan_0(data, result: bool):
+    assert check_none_and_nan(data, float) == result
 
 
 @pytest.mark.parametrize(
@@ -211,7 +212,7 @@ def test_check_double_180(coordinate, result: bool):
     [
         (-23, False),
         (1, True),
-        (0, False),
+        (0, True),
         (23.456, False),
         (45.0, True),
         ("a45", False),
@@ -229,14 +230,33 @@ def test_check_positive_int_0(data, result: bool):
     "data, result",
     [
         (-23, False),
+        (1, True),
         (0, False),
+        (23.456, False),
+        (45.0, True),
+        ("a45", False),
+        (None, False),
+        (int(23.456), True),
+        (float(23.34), False),
+        (np.NaN, False),
+    ],
+)
+def test_check_positive_int_from_0(data, result: bool):
+    assert check_positive_int_from_one(data, "int") == result
+
+
+@pytest.mark.parametrize(
+    "data, result",
+    [
+        (-23, False),
+        (1, True),
         (45, True),
         (23.456, False),
         ("a45", False),
         (None, True),
         (int(23.456), True),
-        (float(23), False),
-        (np.NaN, False),
+        (float(23), True),
+        (np.NaN, True),
     ],
 )
 def test_check_positive_int_or_Null_0(data, result: bool):

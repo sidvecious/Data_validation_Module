@@ -26,7 +26,7 @@
                 "name": "db_id",
                 "type": "int",
                 "validation": [
-                    "check_none",
+                    "check_none_and_nan",
                     "check_positive_int"
                 ]
             }
@@ -38,7 +38,6 @@
                 "name": "soc_percent",
                 "type": "float",
                 "validation": [
-                    "check_none",
                     "check_range_from_zero_to_hundred"
                 ]
             },

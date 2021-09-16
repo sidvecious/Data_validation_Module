@@ -15,30 +15,36 @@ check_date_format_YYYY_mm_dd = getattr(validation, "check_date_format_YYYY_mm_dd
 check_string_format_nnn_mmm = getattr(validation, "check_string_format_nnn_mmm")
 check_type_of_row = getattr(validation, "check_type_of_row")
 check_positive_int = getattr(validation, "check_positive_int")
-check_none = getattr(validation, "check_none")
+check_positive_int_from_one = getattr(validation, "check_positive_int_from_one")
+check_none_and_nan = getattr(validation, "check_none_and_nan")
 check_range_from_zero_to_hundred = getattr(
     validation, "check_range_from_zero_to_hundred"
 )
 check_positive_int_or_Null = getattr(validation, "check_positive_int_or_Null")
+check_double_90 = getattr(validation, "check_double_90")
+check_double_180 = getattr(validation, "check_double_180")
+check_string_available_for_database = getattr(
+    validation, "check_string_available_for_database"
+)
 
 VALID_DATA = 1
 INVALID_DATA = 0
 VALID_DATA_COLUMN = "is_valid_data"
 
-# DATAFRAME_DICT = {
-#    "date_id": check_date_format_YYYY_mm_dd,
-#    "depth_id": check_string_format_nnn_mmm,
-#    "soil_texture": check_type_of_row,
-# }
 
 DATAFRAME_DICT = {
     "check_date_format_YYYY_mm_dd": check_date_format_YYYY_mm_dd,
     "check_string_format_nnn_mmm": check_string_format_nnn_mmm,
     "check_type_of_row": check_type_of_row,
-    "check_positive_int": check_positive_int,
-    "check_none": check_none,
+    "check_positive_int_from_one": check_positive_int_from_one,
+    "check_none_and_nan": check_none_and_nan,
     "check_range_from_zero_to_hundred": check_range_from_zero_to_hundred,
     "check_positive_int_or_Null": check_positive_int_or_Null,
+    # not tested!
+    "check_positive_int": check_positive_int,
+    "check_double_90": check_double_90,
+    "check_double_180": check_double_180,
+    "check_string_available_for_database": check_string_available_for_database,
 }
 
 
@@ -47,6 +53,7 @@ DATAFRAME_DICT = {
 def read_json_file(dataframe_config_file_name: str) -> dict:
     with open(find_closest_filepath(dataframe_config_file_name)) as dfj:
         data_config = json.load(dfj)
+    logger.info(f"{dataframe_config_file_name} id founded by read_json_file")
     return data_config
 
 
@@ -111,8 +118,11 @@ def iterate_data_config(df_name: str, dataframe_config: dict, df: pd.DataFrame) 
 # final function: create the invalid_data csv and the cleaned dataframe with the validate rows
 def split_invalid_data_rows(df: pd.DataFrame, output_csv_dir: str) -> pd.DataFrame:
     data_dir = find_closest_filepath(output_csv_dir)
+    logger.info(f"{df.shape[0]} total rows in the DataFrame")
     df[df[VALID_DATA_COLUMN] == 0].to_csv(data_dir / "invalid_rows.csv")
-    return df[df[VALID_DATA_COLUMN] == 1]
+    df_clean = df[df[VALID_DATA_COLUMN] == 1]
+    logger.info(f"{df_clean.shape[0]} rows valid in the DataFrame")
+    return df_clean
 
 
 # main function for the dataframe, config_path is the name of the configuration Json
@@ -122,7 +132,7 @@ def check_dataframe(
     data_config = read_json_file(dataframe_config_file_name)
     # invalid_list is a list with the index of all the invalid rows
     invalid_index_list = iterate_data_config(df_name, data_config, df)
-    logger.debug(invalid_index_list)
+    logger.info(f"invalid_index_list: {invalid_index_list}")
     df[VALID_DATA_COLUMN] = VALID_DATA
     df.loc[invalid_index_list, VALID_DATA_COLUMN] = INVALID_DATA
     # df.invalid_data contains 1 in every invalid column, 0 for every valid column

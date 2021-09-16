@@ -98,8 +98,8 @@ def test_check_range_from_zero_to_hundred_col(
 @pytest.mark.parametrize(
     "test_input_df, test_invalid_array",
     [
+        (pd.DataFrame({"db_id": [1, 0, -3]}), [2]),
         (pd.DataFrame({"db_id": [1, 2, -3]}), [2]),
-        (pd.DataFrame({"db_id": [1, 2, 0]}), [2]),
         (pd.DataFrame({"db_id": [1, 2, "aaa"]}), [2]),
         (pd.DataFrame({"db_id": [1, 2, None]}), [2]),
         (pd.DataFrame({"db_id": [1, 2, np.NaN]}), [2]),
@@ -121,32 +121,28 @@ def test_check_dataset_db_id_col2(
     assert test_invalid_array == invalid_list
 
 
-# @pytest.mark.parametrize(
-#    "test_input_df, test_invalid_array",
-#        [
-#            (pd.DataFrame({"tolerance": [1, None, -3]}), [2]),
-#            (pd.DataFrame({"tolerance": [1, None, 0]}), [2]),
-#            (pd.DataFrame({"tolerance": [1, None, "aaa"]}), [2]),
-#            (pd.DataFrame({"tolerance": [1, None, np.NaN]}), [2]),
-#            (pd.DataFrame({"tolerance": [1, None, 3.3]}), [2])
-#        ],
-# )
-# def test_check_dataset_positive_int_or_Null_col0(
-#        test_input_df: pd.DataFrame,
-#        test_invalid_array: list
-# ):
-#    from data_validation_module.src import (DATAFRAME_DICT)
-#    test_series = test_input_df.tolerance
-#    test_function = DATAFRAME_DICT["check_positive_int_or_Null"]
-#    invalid_list = find_invalid_data_indices(
-#        test_series,
-#        test_function,
-#        'int'
-#    )
-#    logger.debug(type(invalid_list))
-#    logger.debug(f"test_invalid_array: {test_invalid_array}")
-#    logger.debug(f"invalid_list: {invalid_list}")
-#    assert test_invalid_array == invalid_list
+@pytest.mark.parametrize(
+    "test_input_df, test_invalid_array",
+    [
+        (pd.DataFrame({"tolerance": [1, None, -3]}), [2]),
+        (pd.DataFrame({"tolerance": [1, np.NaN, -3]}), [2]),
+        (pd.DataFrame({"tolerance": [1, None, "aaa"]}), [2]),
+        (pd.DataFrame({"tolerance": [1, np.NaN, 3.3]}), [2]),
+        (pd.DataFrame({"tolerance": [1, None, True]}), [2]),
+    ],
+)
+def test_check_dataset_positive_int_or_Null_col0(
+    test_input_df: pd.DataFrame, test_invalid_array: list
+):
+    from data_validation_module.src import DATAFRAME_DICT
+
+    test_series = test_input_df.tolerance
+    test_function = DATAFRAME_DICT["check_positive_int_or_Null"]
+    invalid_list = find_invalid_data_indices(test_series, test_function, "int")
+    logger.debug(type(invalid_list))
+    logger.debug(f"test_invalid_array: {test_invalid_array}")
+    logger.debug(f"invalid_list: {invalid_list}")
+    assert test_invalid_array == invalid_list
 
 
 def test_read_json_file(
