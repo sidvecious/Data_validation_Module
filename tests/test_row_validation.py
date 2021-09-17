@@ -5,14 +5,14 @@ import numpy as np
 import pandas as pd
 import pytest
 from data_validation_module.row_validations import (
+    check_int_greater_zero,
     check_positive_int,
-    check_positive_int_from_one,
     check_positive_int_or_Null,
     check_string_available_for_database,
     check_type_of_row,
     datestring_has_format_yyyy_mm_dd,
+    is_greater_zero_or_null,
     is_neither_npnan_nor_none,
-    is_positive_not_zero_number_or_null,
     is_type_string,
     is_type_timestamp,
     is_valid_latitude,
@@ -243,7 +243,7 @@ def test_check_positive_int(data: int, result: bool):
     ],
 )
 def test_check_positive_int_from_0(data: int, result: bool):
-    assert check_positive_int_from_one(data) == result
+    assert check_int_greater_zero(data) == result
 
 
 @pytest.mark.parametrize(
@@ -280,7 +280,7 @@ def test_check_positive_int_or_Null(data: int, result: bool):
     ],
 )
 def test_is_positive_not_zero_number_or_null(data: NUMERIC, result: bool):
-    assert is_positive_not_zero_number_or_null(data) == result
+    assert is_greater_zero_or_null(data) == result
 
 
 @pytest.mark.parametrize(

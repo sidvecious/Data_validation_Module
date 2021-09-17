@@ -1,6 +1,6 @@
 import pandas as pd
 import pytest
-from data_validation_module.src import VALID_DATA_COLUMN
+from data_validation_module.__main__ import DATAFRAME_DICT, VALID_DATA_COLUMN
 
 
 # test_data for test_df
@@ -179,8 +179,6 @@ def test_string_dataframe_config_json():
 # test_check_soil_texture_col_0
 @pytest.fixture(scope="module")
 def test_mapped_function():
-    from data_validation_module.src import DATAFRAME_DICT
-
     return DATAFRAME_DICT
 
 

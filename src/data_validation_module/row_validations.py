@@ -94,28 +94,28 @@ def check_positive_int(number: NUMERIC) -> bool:
 
 
 # for check_positive_int_or_null
-def check_positive_int_from_one(number: NUMERIC) -> bool:
+def check_int_greater_zero(number: NUMERIC) -> bool:
     if check_type_of_row(number, "float"):
         if number is not np.isnan(number):
-            if number >= 1 and number.is_integer():
+            if number > 0 and number.is_integer():
                 return True
     elif check_type_of_row(number, "int"):
-        if number >= 1:
+        if number > 0:
             return True
     return False
 
 
 # for: every columns with an ID in upload_to_posgresql
 def check_positive_int_or_Null(number: NUMERIC) -> bool:
-    if is_neither_npnan_nor_none(number) is False:
+    if not is_neither_npnan_nor_none(number):
         return True
     else:
-        return check_positive_int_from_one(number)
+        return check_int_greater_zero(number)
 
 
 # for: check_positive_not_zero_float_or_null
-def is_positive_not_zero_number_or_null(number: NUMERIC) -> bool:
-    if is_neither_npnan_nor_none(number) is False:
+def is_greater_zero_or_null(number: NUMERIC) -> bool:
+    if not is_neither_npnan_nor_none(number):
         return True
     elif check_type_of_row(number, "float") or check_type_of_row(number, "int") is True:
         if number > 0:

@@ -9,14 +9,16 @@ from typing import Dict, List, Optional
 
 import numpy as np
 import pandas as pd
-from data_validation_module.row_validations import (
+from file_path_tools.search_and_find import find_closest_filepath
+from loguru import logger
+from src.data_validation_module.row_validations import (
+    check_int_greater_zero,
     check_positive_int,
-    check_positive_int_from_one,
     check_positive_int_or_Null,
     check_string_available_for_database,
     datestring_has_format_yyyy_mm_dd,
+    is_greater_zero_or_null,
     is_neither_npnan_nor_none,
-    is_positive_not_zero_number_or_null,
     is_type_string,
     is_type_timestamp,
     is_valid_latitude,
@@ -24,8 +26,6 @@ from data_validation_module.row_validations import (
     is_valid_percent_value,
     string_has_format_nnn_mmm,
 )
-from file_path_tools.search_and_find import find_closest_filepath
-from loguru import logger
 
 VALID_DATA = 1
 INVALID_DATA = 0
@@ -35,12 +35,12 @@ VALID_DATA_COLUMN = "is_valid_data"
 DATAFRAME_DICT = {
     "datestring_has_format_yyyy_mm_dd": datestring_has_format_yyyy_mm_dd,
     "string_has_format_nnn_mmm": string_has_format_nnn_mmm,
-    "check_positive_int_from_one": check_positive_int_from_one,
+    "check_int_greater_zero": check_int_greater_zero,
     "is_neither_npnan_nor_none": is_neither_npnan_nor_none,
     "is_valid_percent_value": is_valid_percent_value,
     "check_positive_int_or_Null": check_positive_int_or_Null,
     "check_positive_int": check_positive_int,
-    "is_positive_not_zero_number_or_null": is_positive_not_zero_number_or_null,
+    "is_greater_zero_or_null": is_greater_zero_or_null,
     "check_string_available_for_database": check_string_available_for_database,
     "is_valid_latitude": is_valid_latitude,
     "is_valid_longitude": is_valid_longitude,
@@ -50,7 +50,7 @@ DATAFRAME_DICT = {
 
 
 # this function load the json file with the complete configuration,
-# and give a dictionary for the function main
+# and provides a config dictionary for the main validation function
 def read_json_file(dataframe_config_file_name: str) -> dict:
     with open(find_closest_filepath(dataframe_config_file_name)) as dfj:
         data_config = json.load(dfj)

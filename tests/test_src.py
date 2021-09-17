@@ -3,7 +3,8 @@ import os
 import numpy as np
 import pandas as pd
 import pytest
-from data_validation_module.src import (
+from data_validation_module.__main__ import (
+    DATAFRAME_DICT,
     check_dataframe,
     find_invalid_data_indices,
     iterate_data_config,
@@ -82,7 +83,6 @@ def test_check_dataset_db_id_col(
 def test_is_valid_percent_value_col(
     test_input_df: pd.DataFrame, test_invalid_array: list
 ):
-    from data_validation_module.src import DATAFRAME_DICT
 
     test_series = test_input_df.soc_percent
     test_function = DATAFRAME_DICT["is_valid_percent_value"]
@@ -105,7 +105,6 @@ def test_is_valid_percent_value_col(
 def test_check_dataset_db_id_col2(
     test_input_df: pd.DataFrame, test_invalid_array: list
 ):
-    from data_validation_module.src import DATAFRAME_DICT
 
     test_series = test_input_df.db_id
     test_function = DATAFRAME_DICT["check_positive_int"]
@@ -124,10 +123,9 @@ def test_check_dataset_db_id_col2(
 def test_is_positive_not_zero_number_or_null_col(
     test_input_df: pd.DataFrame, test_invalid_array: list
 ):
-    from data_validation_module.src import DATAFRAME_DICT
 
     test_series = test_input_df.bulk_density
-    test_function = DATAFRAME_DICT["is_positive_not_zero_number_or_null"]
+    test_function = DATAFRAME_DICT["is_greater_zero_or_null"]
     invalid_list = find_invalid_data_indices(test_series, test_function)
     assert test_invalid_array == invalid_list
 
@@ -145,7 +143,6 @@ def test_is_positive_not_zero_number_or_null_col(
 def test_check_dataset_positive_int_or_Null_col(
     test_input_df: pd.DataFrame, test_invalid_array: list
 ):
-    from data_validation_module.src import DATAFRAME_DICT
 
     test_series = test_input_df.tolerance
     test_function = DATAFRAME_DICT["check_positive_int_or_Null"]
@@ -165,7 +162,6 @@ def test_check_dataset_positive_int_or_Null_col(
     ],
 )
 def test_is_valid_latitude_col(test_input_df: pd.DataFrame, test_invalid_array: list):
-    from data_validation_module.src import DATAFRAME_DICT
 
     test_series = test_input_df.latitude
     test_function = DATAFRAME_DICT["is_valid_latitude"]
@@ -185,7 +181,6 @@ def test_is_valid_latitude_col(test_input_df: pd.DataFrame, test_invalid_array: 
     ],
 )
 def test_is_valid_longitude_col(test_input_df: pd.DataFrame, test_invalid_array: list):
-    from data_validation_module.src import DATAFRAME_DICT
 
     test_series = test_input_df.longitude
     test_function = DATAFRAME_DICT["is_valid_longitude"]
@@ -206,7 +201,6 @@ def test_is_valid_longitude_col(test_input_df: pd.DataFrame, test_invalid_array:
 def test_check_string_available_for_database(
     test_input_df: pd.DataFrame, test_invalid_array: list
 ):
-    from data_validation_module.src import DATAFRAME_DICT
 
     test_series = test_input_df.string_for_db
     test_function = DATAFRAME_DICT["check_string_available_for_database"]
