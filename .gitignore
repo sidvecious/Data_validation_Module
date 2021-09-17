@@ -156,3 +156,6 @@ cython_debug/
 
 # script
 scripts/
+
+# configuration file
+*dataframe_config*

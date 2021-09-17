@@ -1,30 +1,35 @@
 import datetime as datetime
+from typing import Union
 
 import numpy as np
 import pandas as pd
 import pytest
 from data_validation_module.row_validations import (
-    check_double_90,
-    check_double_180,
-    check_npnan_nor_none,
     check_positive_int,
     check_positive_int_from_one,
     check_positive_int_or_Null,
-    check_positive_not_zero_float_or_null,
-    check_range_from_zero_to_hundred,
     check_string_available_for_database,
-    check_string_format_nnn_mmm,
     check_type_of_row,
     datestring_has_format_yyyy_mm_dd,
+    is_neither_npnan_nor_none,
+    is_positive_not_zero_number_or_null,
+    is_type_string,
+    is_type_timestamp,
+    is_valid_latitude,
+    is_valid_longitude,
+    is_valid_percent_value,
+    string_has_format_nnn_mmm,
 )
+
+NUMERIC = Union[float, int]
 
 
 @pytest.mark.parametrize(
     "row_item, result",
     [(np.NaN, False), (1, True), (True, True), ("aaa", True), (None, False)],
 )
-def test_check_none_and_nan_0(row_item, result: bool):
-    assert check_npnan_nor_none(row_item, float) == result
+def test_check_none_and_nan(row_item, result: bool):
+    assert is_neither_npnan_nor_none(row_item) == result
 
 
 @pytest.mark.parametrize(
@@ -34,13 +39,12 @@ def test_check_none_and_nan_0(row_item, result: bool):
         (int(45), "int", True),
         ("aaa", "str", True),
         (None, "NoneType", True),
-        (np.NaN, "float", True),
         (False, "bool", True),
         (pd.Timestamp("2016-03-03 00:00:00"), "Timestamp", True),
-        # np.NaN and None become False in a separate check_npnan_nor_none function
+        (np.NaN, "float", True),
     ],
 )
-def test_check_all_type0(row_item, row_item_type: type, result: bool):
+def test_check_all_types(row_item, row_item_type: str, result: bool):
     assert check_type_of_row(row_item, row_item_type) == result
 
 
@@ -55,10 +59,9 @@ def test_check_all_type0(row_item, row_item_type: type, result: bool):
         (int(23.456), False),
         (float(23), True),
         (np.NaN, True),
-        # np.NaN and None become False in a separate check_npnan_nor_none function
     ],
 )
-def test_check_type_of_row_float_0(row_item, result: bool):
+def test_check_type_of_row_float(row_item: float, result: bool):
     assert check_type_of_row(row_item, "float") == result
 
 
@@ -76,19 +79,18 @@ def test_check_type_of_row_float_0(row_item, result: bool):
         (None, False),
         ("alp_num", False),
         (np.NaN, False),
-        # np.NaN and None become False in a separate check_npnan_nor_none function
     ],
 )
-def test_check_range_from_zero_to_hundred_0(percent, result: bool):
-    assert check_range_from_zero_to_hundred(percent, "float") == result
+def test_is_valid_percent_value(percent: NUMERIC, result: bool):
+    assert is_valid_percent_value(percent) == result
 
 
 @pytest.mark.parametrize(
     "data, result",
     [("SiCl", True), (34, False), (None, False), (np.NaN, False), (False, False)],
 )
-def test_check_type_of_row_string_0(data, result: bool):
-    assert check_type_of_row(data, "str") == result
+def test_check_type_of_row_string(data: str, result: bool):
+    assert is_type_string(data) == result
 
 
 @pytest.mark.parametrize(
@@ -111,8 +113,8 @@ def test_check_type_of_row_string_0(data, result: bool):
         ("030_005", False),
     ],
 )
-def test_check_string_format_nnn_mmm_0(data, result: bool):
-    assert check_string_format_nnn_mmm(data, "str") == result
+def test_string_has_format_nnn_mmm(data: str, result: bool):
+    assert string_has_format_nnn_mmm(data) == result
 
 
 @pytest.mark.parametrize(
@@ -133,8 +135,8 @@ def test_check_string_format_nnn_mmm_0(data, result: bool):
         (np.NaN, False),
     ],
 )
-def test_datestring_has_format_yyyy_mm_dd(date, result: bool):
-    assert datestring_has_format_yyyy_mm_dd(date, "str") == result
+def test_datestring_has_format_yyyy_mm_dd(date: str, result: bool):
+    assert datestring_has_format_yyyy_mm_dd(date) == result
 
 
 @pytest.mark.parametrize(
@@ -150,7 +152,7 @@ def test_datestring_has_format_yyyy_mm_dd(date, result: bool):
         (np.NaN, False),
     ],
 )
-def test_check_type_of_row_int_0(data, result: bool):
+def test_check_type_of_row_int(data: int, result: bool):
     assert check_type_of_row(data, "int") == result
 
 
@@ -166,12 +168,12 @@ def test_check_type_of_row_int_0(data, result: bool):
         (10, False),
     ],
 )
-def test_check_type_of_row_timestamp_0(data, result: bool):
-    assert check_type_of_row(data, "Timestamp") == result
+def test_check_type_of_row_timestamp(data: pd.Timestamp, result: bool):
+    assert is_type_timestamp(data) == result
 
 
 @pytest.mark.parametrize(
-    "coordinate, result",
+    "latitude, result",
     [
         (45.1, True),
         (-45.1, True),
@@ -184,12 +186,12 @@ def test_check_type_of_row_timestamp_0(data, result: bool):
         ("alp_num", False),
     ],
 )
-def test_check_double_90(coordinate, result: bool):
-    assert check_double_90(coordinate, "float") == result
+def test_is_valid_latitude(latitude: NUMERIC, result: bool):
+    assert is_valid_latitude(latitude) == result
 
 
 @pytest.mark.parametrize(
-    "coordinate, result",
+    "longitude, result",
     [
         (123.4, True),
         (-123.4, True),
@@ -202,8 +204,8 @@ def test_check_double_90(coordinate, result: bool):
         ("alp_num", False),
     ],
 )
-def test_check_double_180(coordinate, result: bool):
-    assert check_double_180(coordinate, "float") == result
+def test_is_valid_longitude(longitude: NUMERIC, result: bool):
+    assert is_valid_longitude(longitude) == result
 
 
 @pytest.mark.parametrize(
@@ -221,8 +223,8 @@ def test_check_double_180(coordinate, result: bool):
         (np.NaN, False),
     ],
 )
-def test_check_positive_int_0(data, result: bool):
-    assert check_positive_int(data, "int") == result
+def test_check_positive_int(data: int, result: bool):
+    assert check_positive_int(data) == result
 
 
 @pytest.mark.parametrize(
@@ -240,8 +242,8 @@ def test_check_positive_int_0(data, result: bool):
         (np.NaN, False),
     ],
 )
-def test_check_positive_int_from_0(data, result: bool):
-    assert check_positive_int_from_one(data, "int") == result
+def test_check_positive_int_from_0(data: int, result: bool):
+    assert check_positive_int_from_one(data) == result
 
 
 @pytest.mark.parametrize(
@@ -258,8 +260,8 @@ def test_check_positive_int_from_0(data, result: bool):
         (np.NaN, True),
     ],
 )
-def test_check_positive_int_or_Null_0(data, result: bool):
-    assert check_positive_int_or_Null(data, "int") == result
+def test_check_positive_int_or_Null(data: int, result: bool):
+    assert check_positive_int_or_Null(data) == result
 
 
 @pytest.mark.parametrize(
@@ -277,8 +279,8 @@ def test_check_positive_int_or_Null_0(data, result: bool):
         (np.NaN, True),
     ],
 )
-def test_check_positive_not_zero_float_or_null(data, result: bool):
-    assert check_positive_not_zero_float_or_null(data, "float") == result
+def test_is_positive_not_zero_number_or_null(data: NUMERIC, result: bool):
+    assert is_positive_not_zero_number_or_null(data) == result
 
 
 @pytest.mark.parametrize(
@@ -294,5 +296,5 @@ def test_check_positive_not_zero_float_or_null(data, result: bool):
         (np.NaN, False),
     ],
 )
-def test_check_string_available_for_database_0(data, result: bool):
-    assert check_string_available_for_database(data, "str") == result
+def test_check_string_available_for_database(data: str, result: bool):
+    assert check_string_available_for_database(data) == result

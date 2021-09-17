@@ -4,55 +4,51 @@ file with the row validation functions
 
 import re
 from datetime import datetime
+from typing import Tuple, Union
 
 import numpy as np
+import pandas as pd
 from loguru import logger
 
-# General TODOs
-# TODO: please add type hints/ checks for all function headers.
-# TODO: find better names for variables/parameters than "data"
+NUMERIC = Union[float, int]
 
 
-# TODO: spell out (in a comment or function docstring) which values data_type can have: "str", "int", other?
-#  There could even be an assert statement at the beginning, to check that data_type is in ["str", "int", etc.]
 # the basic function for every type check accept bool, none, nan, str, int, float and Timestamp
-# It should accept any other class
-def check_type_of_row(row_item, row_item_type) -> bool:
+# It should accept also any other class
+def check_type_of_row(row_item, row_item_type: str) -> bool:
     try:
         return type(row_item).__name__ == row_item_type
     except Exception as err:
-        logger.error(f"something is wrong with {row_item}, {row_item_type}, {err}")
+        logger.error(f"something goes wrong with {row_item}, {row_item_type}, {err}")
         return False
 
 
-# returns False for np.NaN values for data
-# is called only when the expected type is an instance of numpy
-# for exclude np.NaN
-# TODO: rename to is_neither_npnan_nor_none, parameter "_data_type" not used
-def check_npnan_nor_none(row_item, _):
-    # logger.info(f"data: {data}")
+# for: gdf in upload_to_postgresql if has valid Timestamp
+def is_type_timestamp(date_stamp: pd.Timestamp) -> bool:
+    return check_type_of_row(date_stamp, "Timestamp")
+
+
+# for: gdf in upload_to_postgresql if has valid string
+def is_type_string(string: str) -> bool:
+    return check_type_of_row(string, "str")
+
+
+# is called only when the expected type is an instance of numpy for exclude np.NaN
+def is_neither_npnan_nor_none(row_item: float) -> bool:
     if check_type_of_row(row_item, "float") and np.isnan(row_item):
         return False
     elif row_item is None:
         return False
-    # this code is comment now but could be necessary if we want exclude also None
     return True
 
 
 # for: upload_ready_data, in the target columns with 'percent'
-# the function accept type int and float
-# TODO: rename to percentage_value_in_range_0_100, data_type here should be "float" or "int", right?
-def check_range_from_zero_to_hundred(percent, _) -> bool:
-    if check_type_of_row(percent, "float") or check_type_of_row(percent, "int"):
-        if 0.0 <= percent <= 100.0:
-            return True
-    return False
+def is_valid_percent_value(percent: NUMERIC) -> bool:
+    return is_numeric_value_in_range(percent, (0, 100))
 
 
 # for: upload_ready_data, check_und_upload_geometry, check_und_upload_samples
-# the function accept type str
-# TODO: data_type here should always be "str", right?
-def check_string_format_nnn_mmm(string: str, _) -> bool:
+def string_has_format_nnn_mmm(string: str) -> bool:
     if check_type_of_row(string, "str") and len(string) == 7 and string[3] == "_":
         top_depth = string[:3]
         bottom_depth = string[4:7]
@@ -63,9 +59,7 @@ def check_string_format_nnn_mmm(string: str, _) -> bool:
 
 
 # for: upload_ready_data, check_und_upload_geometry, check_und_upload_samples
-# the function accept type str
-# TODO: maybe rename to datestring_has_format_yyyy_mm_dd, data_type here should always be "str", right?
-def datestring_has_format_yyyy_mm_dd(date: str, _) -> bool:
+def datestring_has_format_yyyy_mm_dd(date: str) -> bool:
     if check_type_of_row(date, "str") and len(date) == 10:
         if date.find("-") == 4 and date.count("-") == 2:
             if 2100 >= int(date[:4]) >= 1900:
@@ -77,32 +71,18 @@ def datestring_has_format_yyyy_mm_dd(date: str, _) -> bool:
     return False
 
 
-# TODO: the following functions are duplicates, the only difference is the value range,
-#  maybe this can be turned into one single function with two implementations.
-# for: gdf in soil_data_harmonization, lat_col must have float64 between -90 and 90
-# the function accept type float and int
-# TODO: data_type here should be "float" or "int", right?
-def check_double_90(coord, _) -> bool:
-    if check_type_of_row(coord, "float") or check_type_of_row(coord, "int"):
-        if -90 <= coord <= 90:
-            return True
-    return False
+# for: gdf in soil_data_harmonization if has valid latitude
+def is_valid_latitude(latitude: NUMERIC) -> bool:
+    return is_numeric_value_in_range(latitude, (-90, 90))
 
 
-# for: gdf in soil_data_harmonization, lon_col must have float64 between -180 and 180
-# the function accept type float and int
-# TODO: data_type here should be "float" or "int", right?
-def check_double_180(coord, _) -> bool:
-    if check_type_of_row(coord, "float") or check_type_of_row(coord, "int"):
-        if -180 <= coord <= 180:
-            return True
-    return False
+# for: gdf in soil_data_harmonization if has valid longitude
+def is_valid_longitude(longitude: NUMERIC) -> bool:
+    return is_numeric_value_in_range(longitude, (-180, 180))
 
 
-# for: dataset_geom_id
-# the function accept type float and int
-# TODO: "data_type" unused.
-def check_positive_int(number, _) -> bool:
+# for: dataset_geom_id if ID is valid
+def check_positive_int(number: NUMERIC) -> bool:
     if check_type_of_row(number, "float"):
         if number is not np.isnan(number):
             if number >= 0 and number.is_integer():
@@ -114,9 +94,7 @@ def check_positive_int(number, _) -> bool:
 
 
 # for check_positive_int_or_null
-# the function accept type float and int
-# TODO: "data_type" unused.
-def check_positive_int_from_one(number, _) -> bool:
+def check_positive_int_from_one(number: NUMERIC) -> bool:
     if check_type_of_row(number, "float"):
         if number is not np.isnan(number):
             if number >= 1 and number.is_integer():
@@ -128,18 +106,16 @@ def check_positive_int_from_one(number, _) -> bool:
 
 
 # for: every columns with an ID in upload_to_posgresql
-# the function accept type float and int
-def check_positive_int_or_Null(number, _) -> bool:
-    if check_npnan_nor_none(number, _) is False:
+def check_positive_int_or_Null(number: NUMERIC) -> bool:
+    if is_neither_npnan_nor_none(number) is False:
         return True
     else:
-        return check_positive_int_from_one(number, _)
+        return check_positive_int_from_one(number)
 
 
 # for: check_positive_not_zero_float_or_null
-# this type of column could have float, int or null
-def check_positive_not_zero_float_or_null(number, _) -> bool:
-    if check_npnan_nor_none(number, _) is False:
+def is_positive_not_zero_number_or_null(number: NUMERIC) -> bool:
+    if is_neither_npnan_nor_none(number) is False:
         return True
     elif check_type_of_row(number, "float") or check_type_of_row(number, "int") is True:
         if number > 0:
@@ -148,9 +124,7 @@ def check_positive_not_zero_float_or_null(number, _) -> bool:
 
 
 # for: check_und_upload_samples, upload_to_postgresql
-# TODO: data_type here should always be "str", right?
-# the function accept type str
-def check_string_available_for_database(db_string, _) -> bool:
+def check_string_available_for_database(db_string: str) -> bool:
     if check_type_of_row(db_string, "str"):
         if db_string.isalpha():
             return True
@@ -158,4 +132,12 @@ def check_string_available_for_database(db_string, _) -> bool:
             regex = re.compile("^[^<>'\"/;`%]*$")
             if regex.search(db_string) is None or "_" in db_string:
                 return True
+    return False
+
+
+# used for all range in is_valid_latitude, is_valid_longitude, is_valid_percent_value
+def is_numeric_value_in_range(num_value: NUMERIC, num_range: Tuple[NUMERIC, NUMERIC]):
+    if check_type_of_row(num_value, "float") or check_type_of_row(num_value, "int"):
+        if num_range[0] <= num_value <= num_range[1]:
+            return True
     return False

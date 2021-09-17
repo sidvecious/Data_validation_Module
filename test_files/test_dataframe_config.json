@@ -3,77 +3,27 @@
         "columns": [
             {
                 "name": "date_id",
-                "type": "str",
                 "validation": [
                     "datestring_has_format_yyyy_mm_dd"
                 ]
             },
             {
                 "name": "depth_id",
-                "type": "str",
                 "validation": [
-                    "check_string_format_nnn_mmm"
+                    "string_has_format_nnn_mmm"
                 ]
             },
             {
                 "name": "soil_texture",
-                "type": "str",
                 "validation": [
-                    "check_type_of_row"
+                    "is_type_string"
                 ]
             },
             {
                 "name": "db_id",
-                "type": "int",
                 "validation": [
-                    "check_npnan_nor_none",
+                    "is_neither_npnan_nor_none",
                     "check_positive_int"
-                ]
-            }
-        ]
-    },
-    "single_column_test": {
-        "columns": [
-            {
-                "name": "soc_percent",
-                "type": "float",
-                "validation": [
-                    "check_range_from_zero_to_hundred"
-                ]
-            },
-            {
-                "name": "tolerance",
-                "type": "int",
-                "validation": [
-                    "check_positive_int_or_Null"
-                ]
-            },
-            {
-                "name": "bulk_density",
-                "type": "float",
-                "validation": [
-                    "check_positive_not_zero_float_or_null"
-                ]
-            },
-            {
-                "name": "string_for_db",
-                "type": "str",
-                "validation": [
-                    "check_string_available_for_database"
-                ]
-            },
-            {
-                "name": "latitude",
-                "type": "float",
-                "validation": [
-                    "check_double_90"
-                ]
-            },
-            {
-                "name": "longitude",
-                "type": "float",
-                "validation": [
-                    "check_double_180"
                 ]
             }
         ]

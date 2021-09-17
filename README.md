@@ -20,7 +20,16 @@ A tool with different functions for the data validation
 
 ## Description
 
-- ADD DESCRIPTION OF MODULE FUNCTIONALITY HERE!
+The steps of data harmonization and collection are performed in Seqana with two separate modules: the Soil Data Harmonization module and the module Upload To PosgreSQL.
+The data validation module consists of a collection of functions for internal use by Seqana for automatic data validation.
+The functions are called within the two main modules to check the consistency, integrity, usefulness, and accuracy of the dataset being harmonized and uploaded.
+Seqana is a B2B start-up company specializing in satellite monitoring of soil organic carbon (SOC) for the voluntary carbon market.
+To get good predictions of soil carbon content, the data in the database must be of high quality.
+The data validation module is used to extend and unify data validation for the main modules.
+The data structure to be analyzed as part of the data validation module is the DataFrame, a class in the Python library Pandas.
+During validation, the following parameters are checked:
+    1. data type in the rows of the DataFrame.
+    2. semantic restriction of the data.
 
 ----
 
@@ -69,7 +78,9 @@ python -m pip install git+https://gitlab.com/cquest1/prototypes/data_validation_
 
 ## TODO
 
-- ADD LIST OF MISSING FUNCTIONALITY / POTENTIAL FUTURE IMPROVEMENTS TO MODULE HERE!
+1 - The architecture with dictionary must be replaced with a Class design
+2 - Validation functions should be added for pandas Series
+3 - Validation functions should be added for JSON file
 
 ----
 

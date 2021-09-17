@@ -81,7 +81,7 @@ def test_depth_id_column(test_df):
 # used in test_check_dataset_depth_id_col_0,
 @pytest.fixture(scope="module")
 def test_depth_id_function_name():
-    return "check_string_format_nnn_mmm"
+    return "string_has_format_nnn_mmm"
 
 
 # --- date_id ---
@@ -120,8 +120,8 @@ def test_soil_texture_column(test_df):
 
 # used in test_check_soil_texture_col_0,
 @pytest.fixture(scope="module")
-def test_check_type_of_row_function_name():
-    return "check_type_of_row"
+def test_is_type_string_function_name():
+    return "is_type_string"
 
 
 # --- db_id ---
@@ -150,62 +150,15 @@ def test_dataframe_config():
     return {
         "test_df": {
             "columns": [
-                {
-                    "name": "date_id",
-                    "type": "str",
-                    "validation": ["datestring_has_format_yyyy_mm_dd"],
-                },
-                {
-                    "name": "depth_id",
-                    "type": "str",
-                    "validation": ["check_string_format_nnn_mmm"],
-                },
-                {
-                    "name": "soil_texture",
-                    "type": "str",
-                    "validation": ["check_type_of_row"],
-                },
+                {"name": "date_id", "validation": ["datestring_has_format_yyyy_mm_dd"]},
+                {"name": "depth_id", "validation": ["string_has_format_nnn_mmm"]},
+                {"name": "soil_texture", "validation": ["is_type_string"]},
                 {
                     "name": "db_id",
-                    "type": "int",
-                    "validation": ["check_npnan_nor_none", "check_positive_int"],
+                    "validation": ["is_neither_npnan_nor_none", "check_positive_int"],
                 },
             ]
-        },
-        "single_column_test": {
-            "columns": [
-                {
-                    "name": "soc_percent",
-                    "type": "float",
-                    "validation": ["check_range_from_zero_to_hundred"],
-                },
-                {
-                    "name": "tolerance",
-                    "type": "int",
-                    "validation": ["check_positive_int_or_Null"],
-                },
-                {
-                    "name": "bulk_density",
-                    "type": "float",
-                    "validation": ["check_positive_not_zero_float_or_null"],
-                },
-                {
-                    "name": "string_for_db",
-                    "type": "str",
-                    "validation": ["check_string_available_for_database"],
-                },
-                {
-                    "name": "latitude",
-                    "type": "float",
-                    "validation": ["check_double_90"],
-                },
-                {
-                    "name": "longitude",
-                    "type": "float",
-                    "validation": ["check_double_180"],
-                },
-            ]
-        },
+        }
     }
 
 

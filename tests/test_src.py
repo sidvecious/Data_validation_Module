@@ -23,7 +23,7 @@ def test_check_dataset_depth_id_col_0(
     test_depth_id_function_name: str,
 ):
     result = find_invalid_data_indices(
-        test_depth_id_column, test_mapped_function[test_depth_id_function_name], "str"
+        test_depth_id_column, test_mapped_function[test_depth_id_function_name]
     )
     assert result == test_invalid_list_depth_id
 
@@ -36,7 +36,7 @@ def test_check_date_id_col_0(
     test_date_id_function_name: str,
 ):
     result = find_invalid_data_indices(
-        test_date_id_column, test_mapped_function[test_date_id_function_name], "str"
+        test_date_id_column, test_mapped_function[test_date_id_function_name]
     )
     assert result == test_invalid_list_date_id
 
@@ -46,25 +46,24 @@ def test_check_soil_texture_col_0(
     test_soil_texture_column: pd.Series,
     test_mapped_function: dict,
     test_invalid_soil_texture: list,
-    test_check_type_of_row_function_name: str,
+    test_is_type_string_function_name: str,
 ):
     result = find_invalid_data_indices(
         test_soil_texture_column,
-        test_mapped_function[test_check_type_of_row_function_name],
-        "str",
+        test_mapped_function[test_is_type_string_function_name],
     )
     assert result == test_invalid_soil_texture
 
 
 # test of iterate_column with the depth_id column
-def test_check_dataset_db_id_col_0(
+def test_check_dataset_db_id_col(
     test_db_id_column: pd.Series,
     test_mapped_function: dict,
     test_invalid_list_db_id: list,
     test_db_id_function_name: str,
 ):
     invalid_result = find_invalid_data_indices(
-        test_db_id_column, test_mapped_function[test_db_id_function_name], "int"
+        test_db_id_column, test_mapped_function[test_db_id_function_name]
     )
     assert invalid_result == test_invalid_list_db_id
 
@@ -80,14 +79,14 @@ def test_check_dataset_db_id_col_0(
         (pd.DataFrame({"soc_percent": [True, 1.1, 2.2]}), [0]),
     ],
 )
-def test_check_range_from_zero_to_hundred_col(
+def test_is_valid_percent_value_col(
     test_input_df: pd.DataFrame, test_invalid_array: list
 ):
     from data_validation_module.src import DATAFRAME_DICT
 
     test_series = test_input_df.soc_percent
-    test_function = DATAFRAME_DICT["check_range_from_zero_to_hundred"]
-    invalid_list = find_invalid_data_indices(test_series, test_function, "float")
+    test_function = DATAFRAME_DICT["is_valid_percent_value"]
+    invalid_list = find_invalid_data_indices(test_series, test_function)
     assert test_invalid_array == invalid_list
 
 
@@ -110,7 +109,7 @@ def test_check_dataset_db_id_col2(
 
     test_series = test_input_df.db_id
     test_function = DATAFRAME_DICT["check_positive_int"]
-    invalid_list = find_invalid_data_indices(test_series, test_function, "int")
+    invalid_list = find_invalid_data_indices(test_series, test_function)
     assert test_invalid_array == invalid_list
 
 
@@ -122,14 +121,14 @@ def test_check_dataset_db_id_col2(
         (pd.DataFrame({"bulk_density": [1.23, 1, False]}), [2]),
     ],
 )
-def test_check_positive_not_zero_float_or_null(
+def test_is_positive_not_zero_number_or_null_col(
     test_input_df: pd.DataFrame, test_invalid_array: list
 ):
     from data_validation_module.src import DATAFRAME_DICT
 
     test_series = test_input_df.bulk_density
-    test_function = DATAFRAME_DICT["check_positive_not_zero_float_or_null"]
-    invalid_list = find_invalid_data_indices(test_series, test_function, "float")
+    test_function = DATAFRAME_DICT["is_positive_not_zero_number_or_null"]
+    invalid_list = find_invalid_data_indices(test_series, test_function)
     assert test_invalid_array == invalid_list
 
 
@@ -143,14 +142,14 @@ def test_check_positive_not_zero_float_or_null(
         (pd.DataFrame({"tolerance": [1, None, True]}), [2]),
     ],
 )
-def test_check_dataset_positive_int_or_Null_col0(
+def test_check_dataset_positive_int_or_Null_col(
     test_input_df: pd.DataFrame, test_invalid_array: list
 ):
     from data_validation_module.src import DATAFRAME_DICT
 
     test_series = test_input_df.tolerance
     test_function = DATAFRAME_DICT["check_positive_int_or_Null"]
-    invalid_list = find_invalid_data_indices(test_series, test_function, "int")
+    invalid_list = find_invalid_data_indices(test_series, test_function)
     assert test_invalid_array == invalid_list
 
 
@@ -165,12 +164,12 @@ def test_check_dataset_positive_int_or_Null_col0(
         (pd.DataFrame({"latitude": [0, 90, "alp_num"]}), [2]),
     ],
 )
-def test_check_double_90(test_input_df: pd.DataFrame, test_invalid_array: list):
+def test_is_valid_latitude_col(test_input_df: pd.DataFrame, test_invalid_array: list):
     from data_validation_module.src import DATAFRAME_DICT
 
     test_series = test_input_df.latitude
-    test_function = DATAFRAME_DICT["check_double_90"]
-    invalid_list = find_invalid_data_indices(test_series, test_function, "float")
+    test_function = DATAFRAME_DICT["is_valid_latitude"]
+    invalid_list = find_invalid_data_indices(test_series, test_function)
     assert test_invalid_array == invalid_list
 
 
@@ -185,12 +184,12 @@ def test_check_double_90(test_input_df: pd.DataFrame, test_invalid_array: list):
         (pd.DataFrame({"longitude": [0, 180, "alp_num"]}), [2]),
     ],
 )
-def test_check_double_180(test_input_df: pd.DataFrame, test_invalid_array: list):
+def test_is_valid_longitude_col(test_input_df: pd.DataFrame, test_invalid_array: list):
     from data_validation_module.src import DATAFRAME_DICT
 
     test_series = test_input_df.longitude
-    test_function = DATAFRAME_DICT["check_double_180"]
-    invalid_list = find_invalid_data_indices(test_series, test_function, "float")
+    test_function = DATAFRAME_DICT["is_valid_longitude"]
+    invalid_list = find_invalid_data_indices(test_series, test_function)
     assert test_invalid_array == invalid_list
 
 
@@ -211,7 +210,7 @@ def test_check_string_available_for_database(
 
     test_series = test_input_df.string_for_db
     test_function = DATAFRAME_DICT["check_string_available_for_database"]
-    invalid_list = find_invalid_data_indices(test_series, test_function, "str")
+    invalid_list = find_invalid_data_indices(test_series, test_function)
     logger.debug(type(invalid_list))
     logger.debug(f"test_invalid_array: {test_invalid_array}")
     logger.debug(f"invalid_list: {invalid_list}")
@@ -279,7 +278,7 @@ def test_validate_column_depth_id(
     test_depth_id_function_name: str,
 ):
     invalid_list_index = validate_column(
-        test_depth_id_function_name, test_depth_id_column, "str"
+        test_depth_id_function_name, test_depth_id_column
     )
     diff = set(invalid_list_index) ^ set(test_invalid_list_depth_id)
     assert not diff
