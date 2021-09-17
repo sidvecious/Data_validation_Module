@@ -4,7 +4,7 @@ before_script:
   - apt-get update
   - apt-get install -y --no-install-recommends curl git
   - apt-get purge -y --auto-remove
-  - apt-get purge -y --auto-remov
+  - rm -rf /var/lib/apt/lists/
   - curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
   - export PATH="$PATH:$HOME/.poetry/bin/"
   - source $HOME/.poetry/env
