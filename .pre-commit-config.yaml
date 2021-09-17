@@ -66,7 +66,7 @@ repos:
     hooks:
         - id: isort
           name: "[py   - format] isort"
-          args: [--settings-path=git-hooks/config]
+          args: [--settings-path=pyproject.toml]
 
   - repo: https://gitlab.com/pycqa/flake8
     rev: 3.9.2

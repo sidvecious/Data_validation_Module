@@ -1,0 +1,21 @@
+image: "python:3.9-slim"
+
+before_script:
+  - apt-get update
+  - apt-get install -y --no-install-recommends curl git
+  - apt-get purge -y --auto-remove
+  - rm -rf /var/lib/apt/lists/
+  - curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+  - export PATH="$PATH:$HOME/.poetry/bin/"
+  - source $HOME/.poetry/env
+  - poetry install --no-dev
+  - source `poetry env info --path`/bin/activate
+
+stages:
+  - test
+
+testing:
+  stage: test
+  script:
+  - flake8 --max-line-length=120 src/data_validation_module/*.py tests/*.py
+  - python -m pytest -vvv --cov=src/data_validation_module
