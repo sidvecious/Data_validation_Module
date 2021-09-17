@@ -5,7 +5,7 @@
                 "name": "date_id",
                 "type": "str",
                 "validation": [
-                    "check_date_format_YYYY_mm_dd"
+                    "datestring_has_format_yyyy_mm_dd"
                 ]
             },
             {
@@ -26,7 +26,7 @@
                 "name": "db_id",
                 "type": "int",
                 "validation": [
-                    "check_none_and_nan",
+                    "check_npnan_nor_none",
                     "check_positive_int"
                 ]
             }
@@ -46,6 +46,34 @@
                 "type": "int",
                 "validation": [
                     "check_positive_int_or_Null"
+                ]
+            },
+            {
+                "name": "bulk_density",
+                "type": "float",
+                "validation": [
+                    "check_positive_not_zero_float_or_null"
+                ]
+            },
+            {
+                "name": "string_for_db",
+                "type": "str",
+                "validation": [
+                    "check_string_available_for_database"
+                ]
+            },
+            {
+                "name": "latitude",
+                "type": "float",
+                "validation": [
+                    "check_double_90"
+                ]
+            },
+            {
+                "name": "longitude",
+                "type": "float",
+                "validation": [
+                    "check_double_180"
                 ]
             }
         ]

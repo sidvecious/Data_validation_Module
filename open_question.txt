@@ -4,16 +4,13 @@ Open question for data_validation_module:
 A - DATAFRAME:
     1 - the architecture with dictionary must be replaced
         with an architecture with classes
-    2 - iterate_column has tests only for 6 validation function,
-        other 4 are needed
-    3 - the dataframe must contain exactly the same columns described by the configuration file,
-        this makes the test for the target columns, which are variable, very cumbersome.
-    4 - the numeric columns from the GeoDataFrame are in soil_harmonization and
+    2 - the numeric columns from the GeoDataFrame are in soil_harmonization and
         upload_to_posgresql: String that represent numbers.
         This is not the expected value! is needed a change of values or
         additional functions in this module.
-    5 - Target Column allow now also Null value, so I need an other function:
-        check_positive_float_or_Null
+    3 - The parameters Type in the dataframe_configuration is now necessary
+        only in 2-4 functions, consider whether to write 2 more functions and remove the parameter
+
 
 B - SERIES:
     1 - functions and tests for only Series are not included

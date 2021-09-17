@@ -101,7 +101,7 @@ def test_date_id_column(test_df):
 # used in test_check_dataset_date_id_col_0,
 @pytest.fixture(scope="module")
 def test_date_id_function_name():
-    return "check_date_format_YYYY_mm_dd"
+    return "datestring_has_format_yyyy_mm_dd"
 
 
 # --- soil_texture ---
@@ -153,7 +153,7 @@ def test_dataframe_config():
                 {
                     "name": "date_id",
                     "type": "str",
-                    "validation": ["check_date_format_YYYY_mm_dd"],
+                    "validation": ["datestring_has_format_yyyy_mm_dd"],
                 },
                 {
                     "name": "depth_id",
@@ -168,7 +168,7 @@ def test_dataframe_config():
                 {
                     "name": "db_id",
                     "type": "int",
-                    "validation": ["check_none_and_nan", "check_positive_int"],
+                    "validation": ["check_npnan_nor_none", "check_positive_int"],
                 },
             ]
         },
@@ -183,6 +183,26 @@ def test_dataframe_config():
                     "name": "tolerance",
                     "type": "int",
                     "validation": ["check_positive_int_or_Null"],
+                },
+                {
+                    "name": "bulk_density",
+                    "type": "float",
+                    "validation": ["check_positive_not_zero_float_or_null"],
+                },
+                {
+                    "name": "string_for_db",
+                    "type": "str",
+                    "validation": ["check_string_available_for_database"],
+                },
+                {
+                    "name": "latitude",
+                    "type": "float",
+                    "validation": ["check_double_90"],
+                },
+                {
+                    "name": "longitude",
+                    "type": "float",
+                    "validation": ["check_double_180"],
                 },
             ]
         },

@@ -5,7 +5,7 @@
                 "name": "date_id",
                 "type": "str",
                 "validation": [
-                    "check_date_format_YYYY_mm_dd"
+                    "datestring_has_format_yyyy_mm_dd"
                 ]
             },
             {
@@ -19,14 +19,22 @@
                 "name": "dataset_geom_id",
                 "type": "int",
                 "validation": [
-                    "check_positive_int_from_one"
+                    "check_positive_int"
                 ]
             },
             {
                 "name": "bulk_density_g_cm3",
                 "type": "float",
                 "validation": [
-                    "check_none_and_nan",
+                    "check_npnan_nor_none",
+                    "check_type_of_row"
+                ]
+            },
+            {
+                "name": "soc_stock_t_ha",
+                "type": "float",
+                "validation": [
+                    "check_npnan_nor_none",
                     "check_type_of_row"
                 ]
             },

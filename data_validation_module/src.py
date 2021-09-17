@@ -10,17 +10,18 @@ from typing import Dict, List, Optional
 import numpy as np
 import pandas as pd
 from data_validation_module.row_validations import (
-    check_date_format_YYYY_mm_dd,
     check_double_90,
     check_double_180,
-    check_none_and_nan,
+    check_npnan_nor_none,
     check_positive_int,
     check_positive_int_from_one,
     check_positive_int_or_Null,
+    check_positive_not_zero_float_or_null,
     check_range_from_zero_to_hundred,
     check_string_available_for_database,
     check_string_format_nnn_mmm,
     check_type_of_row,
+    datestring_has_format_yyyy_mm_dd,
 )
 from file_path_tools.search_and_find import find_closest_filepath
 from loguru import logger
@@ -31,18 +32,19 @@ VALID_DATA_COLUMN = "is_valid_data"
 
 
 DATAFRAME_DICT = {
-    "check_date_format_YYYY_mm_dd": check_date_format_YYYY_mm_dd,
+    "datestring_has_format_yyyy_mm_dd": datestring_has_format_yyyy_mm_dd,
     "check_string_format_nnn_mmm": check_string_format_nnn_mmm,
     "check_type_of_row": check_type_of_row,
     "check_positive_int_from_one": check_positive_int_from_one,
-    "check_none_and_nan": check_none_and_nan,
+    "check_npnan_nor_none": check_npnan_nor_none,
     "check_range_from_zero_to_hundred": check_range_from_zero_to_hundred,
     "check_positive_int_or_Null": check_positive_int_or_Null,
-    # not tested!
     "check_positive_int": check_positive_int,
+    "check_positive_not_zero_float_or_null": check_positive_not_zero_float_or_null,
+    "check_string_available_for_database": check_string_available_for_database,
+    # not tested!
     "check_double_90": check_double_90,
     "check_double_180": check_double_180,
-    "check_string_available_for_database": check_string_available_for_database,
 }
 
 

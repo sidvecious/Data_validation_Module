@@ -72,13 +72,12 @@ def test_check_dataset_db_id_col_0(
 @pytest.mark.parametrize(
     "test_input_df, test_invalid_array",
     [
-        (pd.DataFrame({"soc_percent": [1.1, 2.2, 103.3]}), [2]),
-        (pd.DataFrame({"soc_percent": [1.1, 2.2, -2.3]}), [2]),
+        (pd.DataFrame({"soc_percent": [1, 2.2, 103.3]}), [2]),
+        (pd.DataFrame({"soc_percent": [1, 2.2, -2.3]}), [2]),
         (pd.DataFrame({"soc_percent": [1.1, None, 3.3]}), [1]),
         (pd.DataFrame({"soc_percent": [np.NaN, 2.2, 3.3]}), [0]),
         (pd.DataFrame({"soc_percent": ["string", 2.2, 3.3]}), [0]),
         (pd.DataFrame({"soc_percent": [True, 1.1, 2.2]}), [0]),
-        (pd.DataFrame({"soc_percent": [10]}), [0]),
     ],
 )
 def test_check_range_from_zero_to_hundred_col(
@@ -89,9 +88,6 @@ def test_check_range_from_zero_to_hundred_col(
     test_series = test_input_df.soc_percent
     test_function = DATAFRAME_DICT["check_range_from_zero_to_hundred"]
     invalid_list = find_invalid_data_indices(test_series, test_function, "float")
-    logger.debug(type(invalid_list))
-    logger.debug(f"test_invalid_array: {test_invalid_array}")
-    logger.debug(f"invalid_list: {invalid_list}")
     assert test_invalid_array == invalid_list
 
 
@@ -115,9 +111,25 @@ def test_check_dataset_db_id_col2(
     test_series = test_input_df.db_id
     test_function = DATAFRAME_DICT["check_positive_int"]
     invalid_list = find_invalid_data_indices(test_series, test_function, "int")
-    logger.debug(type(invalid_list))
-    logger.debug(f"test_invalid_array: {test_invalid_array}")
-    logger.debug(f"invalid_list: {invalid_list}")
+    assert test_invalid_array == invalid_list
+
+
+@pytest.mark.parametrize(
+    "test_input_df, test_invalid_array",
+    [
+        (pd.DataFrame({"bulk_density": [1.23, None, "aaa"]}), [2]),
+        (pd.DataFrame({"bulk_density": [1.23, np.NaN, "aaa"]}), [2]),
+        (pd.DataFrame({"bulk_density": [1.23, 1, False]}), [2]),
+    ],
+)
+def test_check_positive_not_zero_float_or_null(
+    test_input_df: pd.DataFrame, test_invalid_array: list
+):
+    from data_validation_module.src import DATAFRAME_DICT
+
+    test_series = test_input_df.bulk_density
+    test_function = DATAFRAME_DICT["check_positive_not_zero_float_or_null"]
+    invalid_list = find_invalid_data_indices(test_series, test_function, "float")
     assert test_invalid_array == invalid_list
 
 
@@ -139,6 +151,67 @@ def test_check_dataset_positive_int_or_Null_col0(
     test_series = test_input_df.tolerance
     test_function = DATAFRAME_DICT["check_positive_int_or_Null"]
     invalid_list = find_invalid_data_indices(test_series, test_function, "int")
+    assert test_invalid_array == invalid_list
+
+
+@pytest.mark.parametrize(
+    "test_input_df, test_invalid_array",
+    [
+        (pd.DataFrame({"latitude": [-89.4, -90, -91.4]}), [2]),
+        (pd.DataFrame({"latitude": [89, 90, 91]}), [2]),
+        (pd.DataFrame({"latitude": [0, 90, None]}), [2]),
+        (pd.DataFrame({"latitude": [0, 90, np.NaN]}), [2]),
+        (pd.DataFrame({"latitude": [0, 90, False]}), [2]),
+        (pd.DataFrame({"latitude": [0, 90, "alp_num"]}), [2]),
+    ],
+)
+def test_check_double_90(test_input_df: pd.DataFrame, test_invalid_array: list):
+    from data_validation_module.src import DATAFRAME_DICT
+
+    test_series = test_input_df.latitude
+    test_function = DATAFRAME_DICT["check_double_90"]
+    invalid_list = find_invalid_data_indices(test_series, test_function, "float")
+    assert test_invalid_array == invalid_list
+
+
+@pytest.mark.parametrize(
+    "test_input_df, test_invalid_array",
+    [
+        (pd.DataFrame({"longitude": [-179.4, -180.0, -181.4]}), [2]),
+        (pd.DataFrame({"longitude": [179, 180, 181]}), [2]),
+        (pd.DataFrame({"longitude": [0, 180, None]}), [2]),
+        (pd.DataFrame({"longitude": [0, 180, np.NaN]}), [2]),
+        (pd.DataFrame({"longitude": [0, 180, False]}), [2]),
+        (pd.DataFrame({"longitude": [0, 180, "alp_num"]}), [2]),
+    ],
+)
+def test_check_double_180(test_input_df: pd.DataFrame, test_invalid_array: list):
+    from data_validation_module.src import DATAFRAME_DICT
+
+    test_series = test_input_df.longitude
+    test_function = DATAFRAME_DICT["check_double_180"]
+    invalid_list = find_invalid_data_indices(test_series, test_function, "float")
+    assert test_invalid_array == invalid_list
+
+
+@pytest.mark.parametrize(
+    "test_input_df, test_invalid_array",
+    [
+        (pd.DataFrame({"string_for_db": ["aaa", "_", "{"]}), [2]),
+        (pd.DataFrame({"string_for_db": ["aaa", "b", "cc}"]}), [2]),
+        (pd.DataFrame({"string_for_db": ["aaa", "bbb", "[cc"]}), [2]),
+        (pd.DataFrame({"string_for_db": ["aaa", "bbb", "cc]"]}), [2]),
+        (pd.DataFrame({"string_for_db": ["aaa", "bbb", "&cc"]}), [2]),
+    ],
+)
+def test_check_string_available_for_database(
+    test_input_df: pd.DataFrame, test_invalid_array: list
+):
+    from data_validation_module.src import DATAFRAME_DICT
+
+    test_series = test_input_df.string_for_db
+    test_function = DATAFRAME_DICT["check_string_available_for_database"]
+    invalid_list = find_invalid_data_indices(test_series, test_function, "str")
     logger.debug(type(invalid_list))
     logger.debug(f"test_invalid_array: {test_invalid_array}")
     logger.debug(f"invalid_list: {invalid_list}")
@@ -222,4 +295,9 @@ def test_check_dataframe(
     df = check_dataframe(
         test_df_name, test_df, test_string_dataframe_config_json, test_output_csv_dir
     )
+    # 1. assert
     assert df.shape == test_valid_df.shape
+
+    # 2. remove invalid_rows.csv
+    data_dir = find_closest_filepath("data_validation_module/test_files")
+    os.remove(data_dir / "invalid_rows.csv")
