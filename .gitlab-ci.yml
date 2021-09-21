@@ -2,6 +2,9 @@ image: "python:3.9-slim"
 
 before_script:
   - python --version
+  - apt-get update
+  - apt-get install -y --no-install-recommends curl git
+  - apt-get purge -y --auto-remove
   - pip install -r requirements.txt
 
 stages:
