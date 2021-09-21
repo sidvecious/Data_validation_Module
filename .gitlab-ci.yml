@@ -12,4 +12,3 @@ testing:
   - flake8 --max-line-length=120 data_validation_module/*.py
   - python -m pytest -vvv --cov=data_validation_module
   - coverage xml -o coverage.xml
-  -
