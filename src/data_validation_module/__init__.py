@@ -1,3 +1,3 @@
 __author__ = "Lorenzo Olivier"
-__email__ = "lorenzo@cquest.ai"
-__version__ = "0.1.6"
+__email__ = "lorenzo.o@seqana.com"
+__version__ = "0.1.7"

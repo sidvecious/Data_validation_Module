@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "data-validation-module"
-version = "0.1.6"
+version = "0.1.7"
 description = "A tool with different functions for the data validation."
-authors = ["Lorenzo Olivier <lorenzo@seqana.com>"]
+authors = ["Lorenzo Olivier <lorenzo.o@seqana.com>"]
 license = "Proprietary"
 readme = "README.md"
 repository = "https://gitlab.com:cquest1/prototypes/data_validation_module"

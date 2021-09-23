@@ -43,8 +43,13 @@ def is_neither_npnan_nor_none(row_item: float) -> bool:
 
 
 # for: upload_ready_data, in the target columns with 'percent'
-def is_valid_percent_value(percent: NUMERIC) -> bool:
-    return is_numeric_value_in_range(percent, (0, 100))
+def is_valid_percent_value_or_null(percent: NUMERIC) -> bool:
+    if is_numeric_value_in_range(percent, (0, 100)) or not is_neither_npnan_nor_none(
+        percent
+    ):
+        return True
+    else:
+        return False
 
 
 # for: upload_ready_data, check_und_upload_geometry, check_und_upload_samples
@@ -69,6 +74,15 @@ def datestring_has_format_yyyy_mm_dd(date: str) -> bool:
                 except ValueError:
                     return False
     return False
+
+
+def is_valid_ratio_value_or_null(ratio: NUMERIC) -> bool:
+    if is_numeric_value_in_range(ratio, (0.0, 1.0)) or not is_neither_npnan_nor_none(
+        ratio
+    ):
+        return True
+    else:
+        return False
 
 
 # for: gdf in soil_data_harmonization if has valid latitude

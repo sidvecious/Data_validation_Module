@@ -3,7 +3,10 @@ import os
 import numpy as np
 import pandas as pd
 import pytest
-from data_validation_module.__main__ import (
+from file_path_tools.search_and_find import find_closest_filepath
+from loguru import logger
+
+from src.data_validation_module.__main__ import (
     DATAFRAME_DICT,
     check_dataframe,
     find_invalid_data_indices,
@@ -12,8 +15,6 @@ from data_validation_module.__main__ import (
     split_invalid_data_rows,
     validate_column,
 )
-from file_path_tools.search_and_find import find_closest_filepath
-from loguru import logger
 
 
 # test of iterate_column with the depth_id column
@@ -74,8 +75,8 @@ def test_check_dataset_db_id_col(
     [
         (pd.DataFrame({"soc_percent": [1, 2.2, 103.3]}), [2]),
         (pd.DataFrame({"soc_percent": [1, 2.2, -2.3]}), [2]),
-        (pd.DataFrame({"soc_percent": [1.1, None, 3.3]}), [1]),
-        (pd.DataFrame({"soc_percent": [np.NaN, 2.2, 3.3]}), [0]),
+        (pd.DataFrame({"soc_percent": [103, None, 3.3]}), [0]),
+        (pd.DataFrame({"soc_percent": [np.NaN, 103, 3.3]}), [1]),
         (pd.DataFrame({"soc_percent": ["string", 2.2, 3.3]}), [0]),
         (pd.DataFrame({"soc_percent": [True, 1.1, 2.2]}), [0]),
     ],
@@ -83,9 +84,28 @@ def test_check_dataset_db_id_col(
 def test_is_valid_percent_value_col(
     test_input_df: pd.DataFrame, test_invalid_array: list
 ):
-
     test_series = test_input_df.soc_percent
-    test_function = DATAFRAME_DICT["is_valid_percent_value"]
+    test_function = DATAFRAME_DICT["is_valid_percent_value_or_null"]
+    invalid_list = find_invalid_data_indices(test_series, test_function)
+    assert test_invalid_array == invalid_list
+
+
+@pytest.mark.parametrize(
+    "test_input_df, test_invalid_array",
+    [
+        (pd.DataFrame({"soc_percent": [0.1, 0.2, 103.3]}), [2]),
+        (pd.DataFrame({"soc_percent": [1, 0.2, -2.3]}), [2]),
+        (pd.DataFrame({"soc_percent": [103, None, 0.3]}), [0]),
+        (pd.DataFrame({"soc_percent": [np.NaN, 103, 0.3]}), [1]),
+        (pd.DataFrame({"soc_percent": ["string", 0.2, 0.3]}), [0]),
+        (pd.DataFrame({"soc_percent": [True, 0.1, 0.2]}), [0]),
+    ],
+)
+def test_is_valid_ratio_value_col(
+    test_input_df: pd.DataFrame, test_invalid_array: list
+):
+    test_series = test_input_df.soc_percent
+    test_function = DATAFRAME_DICT["is_valid_ratio_value_or_null"]
     invalid_list = find_invalid_data_indices(test_series, test_function)
     assert test_invalid_array == invalid_list
 

@@ -4,7 +4,8 @@ from typing import Union
 import numpy as np
 import pandas as pd
 import pytest
-from data_validation_module.row_validations import (
+
+from src.data_validation_module.row_validations import (
     check_int_greater_zero,
     check_positive_int,
     check_positive_int_or_Null,
@@ -17,7 +18,8 @@ from data_validation_module.row_validations import (
     is_type_timestamp,
     is_valid_latitude,
     is_valid_longitude,
-    is_valid_percent_value,
+    is_valid_percent_value_or_null,
+    is_valid_ratio_value_or_null,
     string_has_format_nnn_mmm,
 )
 
@@ -76,13 +78,31 @@ def test_check_type_of_row_float(row_item: float, result: bool):
         ("23", False),
         (34, True),
         (True, False),
-        (None, False),
+        (None, True),
         ("alp_num", False),
-        (np.NaN, False),
+        (np.NaN, True),
     ],
 )
-def test_is_valid_percent_value(percent: NUMERIC, result: bool):
-    assert is_valid_percent_value(percent) == result
+def test_is_valid_percent_value_or_null(percent: NUMERIC, result: bool):
+    assert is_valid_percent_value_or_null(percent) == result
+
+
+@pytest.mark.parametrize(
+    "ratio, result",
+    [
+        (0.45, True),
+        (0.0, True),
+        (1.23, False),
+        (-0.34, False),
+        ("0.23", False),
+        (True, False),
+        (None, True),
+        ("alp_num", False),
+        (np.NaN, True),
+    ],
+)
+def test_is_valid_ratio_value_or_null(ratio: NUMERIC, result: bool):
+    assert is_valid_ratio_value_or_null(ratio) == result
 
 
 @pytest.mark.parametrize(

@@ -1,6 +1,7 @@
 import pandas as pd
 import pytest
-from data_validation_module.__main__ import DATAFRAME_DICT, VALID_DATA_COLUMN
+
+from src.data_validation_module.__main__ import DATAFRAME_DICT, VALID_DATA_COLUMN
 
 
 # test_data for test_df

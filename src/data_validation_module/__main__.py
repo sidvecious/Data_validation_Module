@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 from file_path_tools.search_and_find import find_closest_filepath
 from loguru import logger
+
 from src.data_validation_module.row_validations import (
     check_int_greater_zero,
     check_positive_int,
@@ -23,7 +24,8 @@ from src.data_validation_module.row_validations import (
     is_type_timestamp,
     is_valid_latitude,
     is_valid_longitude,
-    is_valid_percent_value,
+    is_valid_percent_value_or_null,
+    is_valid_ratio_value_or_null,
     string_has_format_nnn_mmm,
 )
 
@@ -37,13 +39,14 @@ DATAFRAME_DICT = {
     "string_has_format_nnn_mmm": string_has_format_nnn_mmm,
     "check_int_greater_zero": check_int_greater_zero,
     "is_neither_npnan_nor_none": is_neither_npnan_nor_none,
-    "is_valid_percent_value": is_valid_percent_value,
+    "is_valid_percent_value_or_null": is_valid_percent_value_or_null,
     "check_positive_int_or_Null": check_positive_int_or_Null,
     "check_positive_int": check_positive_int,
     "is_greater_zero_or_null": is_greater_zero_or_null,
     "check_string_available_for_database": check_string_available_for_database,
     "is_valid_latitude": is_valid_latitude,
     "is_valid_longitude": is_valid_longitude,
+    "is_valid_ratio_value_or_null": is_valid_ratio_value_or_null,
     "is_type_timestamp": is_type_timestamp,
     "is_type_string": is_type_string,
 }
