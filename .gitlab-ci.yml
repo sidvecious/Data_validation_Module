@@ -2,6 +2,9 @@ pip installimage: "python:3.9-slim"
 
 before_script:
   - python --version
+  - apt-get update
+  - apt-get install -y --no-install-recommends curl git
+  - apt-get purge -y --auto-remove
   - pip install -r requirements.txt
 
 stages:
@@ -12,4 +15,3 @@ testing:
   - flake8 --max-line-length=120 data_validation_module/*.py
   - python -m pytest -vvv --cov=data_validation_module
   - coverage xml -o coverage.xml
-  -
