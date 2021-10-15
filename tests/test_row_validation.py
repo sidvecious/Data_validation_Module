@@ -1,4 +1,5 @@
 import datetime as datetime
+from pathlib import Path, PosixPath
 from typing import Union
 
 import numpy as np
@@ -14,8 +15,11 @@ from src.data_validation_module.row_validations import (
     datestring_has_format_yyyy_mm_dd,
     is_greater_zero_or_null,
     is_neither_npnan_nor_none,
+    is_string_represent_json,
     is_type_string,
     is_type_timestamp,
+    is_valid_dir_path,
+    is_valid_file_path,
     is_valid_latitude,
     is_valid_longitude,
     is_valid_percent_value_or_null,
@@ -318,3 +322,56 @@ def test_is_positive_not_zero_number_or_null(data: NUMERIC, result: bool):
 )
 def test_check_string_available_for_database(data: str, result: bool):
     assert check_string_available_for_database(data) == result
+
+
+@pytest.mark.parametrize(
+    "data, result",
+    [
+        (Path("src/data_validation_module"), True),
+        (PosixPath("src/data_validation_module"), True),
+        (PosixPath("test_files/dictionary_config.json"), False),
+        (PosixPath("/foo/foo.bar"), False),
+        (Path("/foo/foo.bar"), False),
+        (PosixPath("foo/foo"), False),
+        ("/foo/foo", False),
+        ("foo", False),
+        (None, False),
+        (np.NaN, False),
+    ],
+)
+def test_is_valid_dir_path(data: Path, result: bool):
+    assert is_valid_dir_path(data) == result
+
+
+@pytest.mark.parametrize(
+    "data, result",
+    [
+        (Path("src/data_validation_module"), False),
+        (PosixPath("test_files/dictionary_config.json"), True),
+        (Path("test_files/dictionary_config.json"), True),
+        (PosixPath("/foo/foo.bar"), False),
+        (Path("/foo/foo.bar"), False),
+        (PosixPath("foo/foo"), False),
+        ("/foo/foo", False),
+        ("foo", False),
+        (None, False),
+        (np.NaN, False),
+    ],
+)
+def test_is_valid_file_path(data: Path, result: bool):
+    assert is_valid_file_path(data) == result
+
+
+@pytest.mark.parametrize(
+    "data, result",
+    [
+        ("foo/foo.json", True),
+        ("foo.json/", False),
+        ("foo++.json", False),
+        (None, False),
+        (23, False),
+        (np.NaN, False),
+    ],
+)
+def test_is_string_represent_json(data: str, result: bool):
+    assert is_string_represent_json(data) == result

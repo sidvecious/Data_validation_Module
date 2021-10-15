@@ -245,13 +245,8 @@ def test_iterate_data_config(
     test_invalid_index_list: list,
 ):
     invalid_list = iterate_data_config(test_df_name, test_dataframe_config, test_df)
-    logger.debug(invalid_list)
-    logger.debug(test_invalid_index_list)
     diff = set(invalid_list) ^ set(test_invalid_index_list)
     assert not diff
-
-
-# this tests doesn't function correctly
 
 
 def test_split_invalid_data_row_0(

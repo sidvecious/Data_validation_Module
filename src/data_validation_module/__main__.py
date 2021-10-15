@@ -102,17 +102,18 @@ def iterate_data_config(
     if df_name in dataframe_config:
         df_config = dataframe_config[df_name]
         for column in df_config["columns"]:
-            series = df[column["name"]]
-            # a list is needed in this json position because for some data structures
-            if type(column["validation"]) is not list:
-                logger.error(f'{column["validation"]} is wrong!')
-                continue
-            for fn_name in column["validation"]:
-                # fn_name is the single validation function
-                invalid_index_list.extend(
-                    validate_column(fn_name, series, DATAFRAME_DICT)
-                )
-                invalid_index_list = list(set(invalid_index_list))
+            if column["name"] in df.columns:
+                series = df[column["name"]]
+                # a list is needed in this json position because for some data structures
+                if type(column["validation"]) is not list:
+                    logger.error(f'{column["validation"]} is wrong!')
+                    continue
+                for fn_name in column["validation"]:
+                    # fn_name is the single validation function
+                    invalid_index_list.extend(
+                        validate_column(fn_name, series, DATAFRAME_DICT)
+                    )
+                    invalid_index_list = list(set(invalid_index_list))
 
     return invalid_index_list
 

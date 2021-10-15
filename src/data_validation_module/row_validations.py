@@ -1,9 +1,11 @@
 """
 file with the row validation functions
 """
-
 import re
 from datetime import datetime
+from pathlib import Path
+
+# from tabnanny import check
 from typing import Tuple, Union
 
 import numpy as np
@@ -154,4 +156,27 @@ def is_numeric_value_in_range(num_value: NUMERIC, num_range: Tuple[NUMERIC, NUME
     if check_type_of_row(num_value, "float") or check_type_of_row(num_value, "int"):
         if num_range[0] <= num_value <= num_range[1]:
             return True
+    return False
+
+
+def is_valid_dir_path(path: Path) -> bool:
+    if check_type_of_row(path, "Path") or check_type_of_row(path, "PosixPath"):
+        if path.is_dir() is True and not path.is_file():
+            return True
+    return False
+
+
+def is_valid_file_path(path: Path) -> bool:
+    if check_type_of_row(path, "Path") or check_type_of_row(path, "PosixPath"):
+        if path.is_dir() is False and path.is_file():
+            return True
+    return False
+
+
+def is_string_represent_json(string_of_json: str) -> bool:
+    if check_type_of_row(string_of_json, "str"):
+        regex = re.compile("^[A-Za-z0-9_./]*$")
+        if re.match(regex, string_of_json):
+            if string_of_json.find(".") > string_of_json.find("/"):
+                return True
     return False
