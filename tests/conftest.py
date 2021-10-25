@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 import pytest
 
@@ -172,7 +174,7 @@ def test_df_name():
 # used in test_read_json_file
 @pytest.fixture(scope="module")
 def test_string_dataframe_config_json():
-    return "test_dataframe_config.json"
+    return Path("test_files/test_dataframe_config.json")
 
 
 # used in test_check_dataset_depth_id_col_0,
@@ -185,4 +187,4 @@ def test_mapped_function():
 
 @pytest.fixture(scope="module")
 def test_output_csv_dir():
-    return "data_validation_module/test_files"
+    return Path("test_files")

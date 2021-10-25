@@ -5,11 +5,11 @@ with the functions that work with the dataframe or the columns
 """
 import json
 from collections.abc import Callable
+from pathlib import Path
 from typing import Dict, List, Optional
 
 import numpy as np
 import pandas as pd
-from file_path_tools.search_and_find import find_closest_filepath
 from loguru import logger
 
 from src.data_validation_module.row_validations import (
@@ -54,10 +54,10 @@ DATAFRAME_DICT = {
 
 # this function load the json file with the complete configuration,
 # and provides a config dictionary for the main validation function
-def read_json_file(dataframe_config_file_name: str) -> dict:
-    with open(find_closest_filepath(dataframe_config_file_name)) as dfj:
+def read_json_file(dataframe_config_path: Path) -> dict:
+    with open(dataframe_config_path, "r+") as dfj:
         data_config = json.load(dfj)
-    logger.info(f"{dataframe_config_file_name} id founded by read_json_file")
+    logger.info(f"{dataframe_config_path} id founded by read_json_file")
     return data_config
 
 
@@ -119,10 +119,9 @@ def iterate_data_config(
 
 
 # final function: create the invalid_data csv and the cleaned dataframe with the validate rows
-def split_invalid_data_rows(df: pd.DataFrame, output_csv_dir: str) -> pd.DataFrame:
-    data_dir = find_closest_filepath(output_csv_dir)
+def split_invalid_data_rows(df: pd.DataFrame, output_csv_dir: Path) -> pd.DataFrame:
     logger.info(f"{len(df.index)} total rows in the DataFrame")
-    df[df[VALID_DATA_COLUMN] == 0].to_csv(data_dir / "invalid_rows.csv")
+    df[df[VALID_DATA_COLUMN] == 0].to_csv(output_csv_dir / "invalid_rows.csv")
     df_clean = df[df[VALID_DATA_COLUMN] == 1]
     logger.info(f"{len(df_clean.index)} rows valid in the DataFrame")
     return df_clean
@@ -130,9 +129,9 @@ def split_invalid_data_rows(df: pd.DataFrame, output_csv_dir: str) -> pd.DataFra
 
 # main function for the dataframe, config_path is the name of the configuration Json
 def check_dataframe(
-    df_name: str, df: pd.DataFrame, dataframe_config_file_name: str, output_csv_dir: str
+    df_name: str, df: pd.DataFrame, dataframe_config_path: Path, output_csv_dir: Path
 ) -> pd.DataFrame:
-    data_config = read_json_file(dataframe_config_file_name)
+    data_config = read_json_file(dataframe_config_path)
     invalid_index_list = iterate_data_config(df_name, data_config, df)
     logger.info(f"invalid_index_list: {invalid_index_list}")
     df[VALID_DATA_COLUMN] = VALID_DATA

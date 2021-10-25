@@ -1,9 +1,9 @@
 import os
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import pytest
-from file_path_tools.search_and_find import find_closest_filepath
 from loguru import logger
 
 from src.data_validation_module.__main__ import (
@@ -232,7 +232,7 @@ def test_check_string_available_for_database(
 
 
 def test_read_json_file(
-    test_dataframe_config: dict, test_string_dataframe_config_json: str
+    test_dataframe_config: dict, test_string_dataframe_config_json: Path
 ):
     data_conf = read_json_file(test_string_dataframe_config_json)
     assert data_conf == test_dataframe_config
@@ -252,28 +252,27 @@ def test_iterate_data_config(
 def test_split_invalid_data_row_0(
     test_invalid_df: pd.DataFrame,
     test_df_with_invalid_column_filled: pd.DataFrame,
-    test_output_csv_dir: str,
+    test_output_csv_dir: Path,
 ):
     # 1. remove invalid_rows.csv
-    data_dir = find_closest_filepath("data_validation_module/test_files")
     try:
-        os.remove(data_dir / "invalid_rows.csv")
+        os.remove(test_output_csv_dir / "invalid_rows.csv")
     except IOError:
         pass
 
     # 2. assert invalid_rows.csv
     split_invalid_data_rows(test_df_with_invalid_column_filled, test_output_csv_dir)
-    df = pd.read_csv(data_dir / "invalid_rows.csv", index_col=0)
+    df = pd.read_csv(test_output_csv_dir / "invalid_rows.csv", index_col=0)
     assert df.shape == test_invalid_df.shape
 
     # 3. remove invalid_rows.csv
-    os.remove(data_dir / "invalid_rows.csv")
+    os.remove(test_output_csv_dir / "invalid_rows.csv")
 
 
 def test_split_invalid_data_row_1(
     test_valid_df: pd.DataFrame,
     test_df_with_invalid_column_filled: pd.DataFrame,
-    test_output_csv_dir: str,
+    test_output_csv_dir: Path,
 ):
     df = split_invalid_data_rows(
         test_df_with_invalid_column_filled, test_output_csv_dir
@@ -296,8 +295,8 @@ def test_validate_column_depth_id(
 def test_check_dataframe(
     test_df: pd.DataFrame,
     test_df_name: str,
-    test_string_dataframe_config_json: str,
-    test_output_csv_dir: str,
+    test_string_dataframe_config_json: Path,
+    test_output_csv_dir: Path,
     test_valid_df: pd.DataFrame,
 ):
     df = check_dataframe(
@@ -307,5 +306,4 @@ def test_check_dataframe(
     assert df.shape == test_valid_df.shape
 
     # 2. remove invalid_rows.csv
-    data_dir = find_closest_filepath("data_validation_module/test_files")
-    os.remove(data_dir / "invalid_rows.csv")
+    os.remove(test_output_csv_dir / "invalid_rows.csv")
