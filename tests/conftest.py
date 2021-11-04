@@ -1,9 +1,11 @@
+import copy
+import json
 from pathlib import Path
 
 import pandas as pd
 import pytest
 
-from src.data_validation_module.__main__ import DATAFRAME_DICT, VALID_DATA_COLUMN
+from src.data_validation_module.__main__ import VALID_DATA_COLUMN, VALIDATION_DICT
 
 
 # test_data for test_df
@@ -173,7 +175,7 @@ def test_df_name():
 
 # used in test_read_json_file
 @pytest.fixture(scope="module")
-def test_string_dataframe_config_json():
+def test_dataframe_config_path():
     return Path("test_files/test_dataframe_config.json")
 
 
@@ -182,9 +184,74 @@ def test_string_dataframe_config_json():
 # test_check_soil_texture_col_0
 @pytest.fixture(scope="module")
 def test_mapped_function():
-    return DATAFRAME_DICT
+    return VALIDATION_DICT
 
 
+# used for test_split_invalid_data_row_0, test_split_invalid_data_row_1,
+# test_check_dataframe, test_print_invalid_dictionary, test_check_dictionary_right
+# test_check_dictionary_wrong_values, est_check_dictionary_wrong_keys
 @pytest.fixture(scope="module")
-def test_output_csv_dir():
+def test_output_dir():
     return Path("test_files")
+
+
+# used for all the test of:
+# iterate_dictionary_config, print_invalid_dictionary, check_dictionary
+@pytest.fixture(scope="module")
+def test_target_dict_right():
+    return {
+        "database_id": 7,
+        "db_string": "str1ng_with_number",
+        "dir_path": Path("test_files"),
+        "file_path": Path("test_files/test_json.json"),
+        "json_file": "json_file.json",
+    }
+
+
+# used in: test_iterate_dictionary_config_wrong_database_id,
+# test_iterate_dictionary_config_wrong_db_id_and_string,
+# test_check_dictionary_wrong_values
+@pytest.fixture(scope="module")
+def test_target_dict_wrong_database_id(test_target_dict_right):
+    new_dict = copy.deepcopy(test_target_dict_right)
+    new_dict["database_id"] = -7
+    return new_dict
+
+
+# used in: test_check_dictionary_wrong_values
+# test_iterate_dictionary_config_wrong_db_id_and_string
+@pytest.fixture(scope="module")
+def test_target_dict_wrong_db_id_and_string(test_target_dict_wrong_database_id):
+    new_dict = copy.deepcopy(test_target_dict_wrong_database_id)
+    new_dict["db_string"] = "%^&"
+    return new_dict
+
+
+# used in: test_check_dictionary_with_wrong_key
+# test_iterate_dictionary_config_wrong_key
+@pytest.fixture(scope="module")
+def test_target_dict_wrong_key(test_target_dict_right):
+    new_dict = copy.deepcopy(test_target_dict_right)
+    new_dict["wrong_key"] = new_dict.pop("database_id")
+    return new_dict
+
+
+# used in all tests of the function: iterate_dictionary_config
+@pytest.fixture(scope="module")
+def test_config_dictionary():
+    dictionary_config_path = "test_files/test_dictionary_config.json"
+    with open(dictionary_config_path, "r+") as dfj:
+        data_config = json.load(dfj)
+    return data_config
+
+
+# used in all tests of check_dictionary,
+@pytest.fixture(scope="module")
+def test_dict_name():
+    return "test_target_dict"
+
+
+# used in all tests of check_dictionary, iterate_dictionary_config
+@pytest.fixture(scope="module")
+def test_dictionary_config_path():
+    return Path("test_files/test_dictionary_config.json")

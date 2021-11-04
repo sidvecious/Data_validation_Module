@@ -145,14 +145,17 @@ def check_string_available_for_database(db_string: str) -> bool:
         if db_string.isalpha():
             return True
         else:
-            regex = re.compile("^[^<>'\"/;`%]*$")
-            if regex.search(db_string) is None or "_" in db_string:
+            regex = re.compile("^[A-Za-z0-9_ ]*$")
+            if re.match(regex, db_string):
                 return True
+        return False
     return False
 
 
 # used for all range in is_valid_latitude, is_valid_longitude, is_valid_percent_value
-def is_numeric_value_in_range(num_value: NUMERIC, num_range: Tuple[NUMERIC, NUMERIC]):
+def is_numeric_value_in_range(
+    num_value: NUMERIC, num_range: Tuple[NUMERIC, NUMERIC]
+) -> bool:
     if check_type_of_row(num_value, "float") or check_type_of_row(num_value, "int"):
         if num_range[0] <= num_value <= num_range[1]:
             return True
@@ -177,6 +180,6 @@ def is_string_represent_json(string_of_json: str) -> bool:
     if check_type_of_row(string_of_json, "str"):
         regex = re.compile("^[A-Za-z0-9_./]*$")
         if re.match(regex, string_of_json):
-            if string_of_json.find(".") > string_of_json.find("/"):
+            if string_of_json.endswith(".json"):
                 return True
     return False

@@ -1,5 +1,5 @@
 import os
-from pathlib import Path
+from pathlib import Path, PosixPath
 
 import numpy as np
 import pandas as pd
@@ -7,13 +7,19 @@ import pytest
 from loguru import logger
 
 from src.data_validation_module.__main__ import (
-    DATAFRAME_DICT,
+    TYPES_IN_DICTIONARY_VALUES,
+    VALIDATION_DICT,
     check_dataframe,
+    check_dictionary,
     find_invalid_data_indices,
+    find_invalid_dict_values,
     iterate_data_config,
+    iterate_dictionary_config,
+    print_invalid_dictionary,
     read_json_file,
     split_invalid_data_rows,
     validate_column,
+    validate_functions_for_dictionaries,
 )
 
 
@@ -85,7 +91,7 @@ def test_is_valid_percent_value_col(
     test_input_df: pd.DataFrame, test_invalid_array: list
 ):
     test_series = test_input_df.soc_percent
-    test_function = DATAFRAME_DICT["is_valid_percent_value_or_null"]
+    test_function = VALIDATION_DICT["is_valid_percent_value_or_null"]
     invalid_list = find_invalid_data_indices(test_series, test_function)
     assert test_invalid_array == invalid_list
 
@@ -105,7 +111,7 @@ def test_is_valid_ratio_value_col(
     test_input_df: pd.DataFrame, test_invalid_array: list
 ):
     test_series = test_input_df.soc_percent
-    test_function = DATAFRAME_DICT["is_valid_ratio_value_or_null"]
+    test_function = VALIDATION_DICT["is_valid_ratio_value_or_null"]
     invalid_list = find_invalid_data_indices(test_series, test_function)
     assert test_invalid_array == invalid_list
 
@@ -127,7 +133,7 @@ def test_check_dataset_db_id_col2(
 ):
 
     test_series = test_input_df.db_id
-    test_function = DATAFRAME_DICT["check_positive_int"]
+    test_function = VALIDATION_DICT["check_positive_int"]
     invalid_list = find_invalid_data_indices(test_series, test_function)
     assert test_invalid_array == invalid_list
 
@@ -145,7 +151,7 @@ def test_is_positive_not_zero_number_or_null_col(
 ):
 
     test_series = test_input_df.bulk_density
-    test_function = DATAFRAME_DICT["is_greater_zero_or_null"]
+    test_function = VALIDATION_DICT["is_greater_zero_or_null"]
     invalid_list = find_invalid_data_indices(test_series, test_function)
     assert test_invalid_array == invalid_list
 
@@ -165,7 +171,7 @@ def test_check_dataset_positive_int_or_Null_col(
 ):
 
     test_series = test_input_df.tolerance
-    test_function = DATAFRAME_DICT["check_positive_int_or_Null"]
+    test_function = VALIDATION_DICT["check_positive_int_or_Null"]
     invalid_list = find_invalid_data_indices(test_series, test_function)
     assert test_invalid_array == invalid_list
 
@@ -184,7 +190,7 @@ def test_check_dataset_positive_int_or_Null_col(
 def test_is_valid_latitude_col(test_input_df: pd.DataFrame, test_invalid_array: list):
 
     test_series = test_input_df.latitude
-    test_function = DATAFRAME_DICT["is_valid_latitude"]
+    test_function = VALIDATION_DICT["is_valid_latitude"]
     invalid_list = find_invalid_data_indices(test_series, test_function)
     assert test_invalid_array == invalid_list
 
@@ -203,7 +209,7 @@ def test_is_valid_latitude_col(test_input_df: pd.DataFrame, test_invalid_array: 
 def test_is_valid_longitude_col(test_input_df: pd.DataFrame, test_invalid_array: list):
 
     test_series = test_input_df.longitude
-    test_function = DATAFRAME_DICT["is_valid_longitude"]
+    test_function = VALIDATION_DICT["is_valid_longitude"]
     invalid_list = find_invalid_data_indices(test_series, test_function)
     assert test_invalid_array == invalid_list
 
@@ -223,7 +229,7 @@ def test_check_string_available_for_database(
 ):
 
     test_series = test_input_df.string_for_db
-    test_function = DATAFRAME_DICT["check_string_available_for_database"]
+    test_function = VALIDATION_DICT["check_string_available_for_database"]
     invalid_list = find_invalid_data_indices(test_series, test_function)
     logger.debug(type(invalid_list))
     logger.debug(f"test_invalid_array: {test_invalid_array}")
@@ -231,10 +237,8 @@ def test_check_string_available_for_database(
     assert test_invalid_array == invalid_list
 
 
-def test_read_json_file(
-    test_dataframe_config: dict, test_string_dataframe_config_json: Path
-):
-    data_conf = read_json_file(test_string_dataframe_config_json)
+def test_read_json_file(test_dataframe_config: dict, test_dataframe_config_path: Path):
+    data_conf = read_json_file(test_dataframe_config_path)
     assert data_conf == test_dataframe_config
 
 
@@ -252,31 +256,29 @@ def test_iterate_data_config(
 def test_split_invalid_data_row_0(
     test_invalid_df: pd.DataFrame,
     test_df_with_invalid_column_filled: pd.DataFrame,
-    test_output_csv_dir: Path,
+    test_output_dir: Path,
 ):
     # 1. remove invalid_rows.csv
     try:
-        os.remove(test_output_csv_dir / "invalid_rows.csv")
+        os.remove(test_output_dir / "invalid_rows.csv")
     except IOError:
         pass
 
     # 2. assert invalid_rows.csv
-    split_invalid_data_rows(test_df_with_invalid_column_filled, test_output_csv_dir)
-    df = pd.read_csv(test_output_csv_dir / "invalid_rows.csv", index_col=0)
+    split_invalid_data_rows(test_df_with_invalid_column_filled, test_output_dir)
+    df = pd.read_csv(test_output_dir / "invalid_rows.csv", index_col=0)
     assert df.shape == test_invalid_df.shape
 
     # 3. remove invalid_rows.csv
-    os.remove(test_output_csv_dir / "invalid_rows.csv")
+    os.remove(test_output_dir / "invalid_rows.csv")
 
 
 def test_split_invalid_data_row_1(
     test_valid_df: pd.DataFrame,
     test_df_with_invalid_column_filled: pd.DataFrame,
-    test_output_csv_dir: Path,
+    test_output_dir: Path,
 ):
-    df = split_invalid_data_rows(
-        test_df_with_invalid_column_filled, test_output_csv_dir
-    )
+    df = split_invalid_data_rows(test_df_with_invalid_column_filled, test_output_dir)
     assert df.shape == test_valid_df.shape
 
 
@@ -295,15 +297,216 @@ def test_validate_column_depth_id(
 def test_check_dataframe(
     test_df: pd.DataFrame,
     test_df_name: str,
-    test_string_dataframe_config_json: Path,
-    test_output_csv_dir: Path,
+    test_dataframe_config_path: Path,
+    test_output_dir: Path,
     test_valid_df: pd.DataFrame,
 ):
     df = check_dataframe(
-        test_df_name, test_df, test_string_dataframe_config_json, test_output_csv_dir
+        test_df_name, test_df, test_dataframe_config_path, test_output_dir
     )
+
     # 1. assert
     assert df.shape == test_valid_df.shape
 
     # 2. remove invalid_rows.csv
-    os.remove(test_output_csv_dir / "invalid_rows.csv")
+    os.remove(test_output_dir / "invalid_rows.csv")
+
+
+@pytest.mark.parametrize(
+    "test_table_name, test_mapped_function, test_target_value, test_result",
+    [
+        ("database_id", "check_int_greater_zero", 1, []),
+        ("database_id", "check_int_greater_zero", 0, ["database_id"]),
+        ("database_id", "check_int_greater_zero", -1, ["database_id"]),
+        ("database_id", "check_int_greater_zero", 12.34, ["database_id"]),
+        ("db_string", "check_string_available_for_database", "abc_123", []),
+        ("db_string", "check_string_available_for_database", "abc*123", ["db_string"]),
+        ("db_string", "check_string_available_for_database", "!@#$%^&*", ["db_string"]),
+        ("db_string", "check_string_available_for_database", None, ["db_string"]),
+        ("dir_path", "is_valid_dir_path", PosixPath("test_files"), []),
+        ("dir_path", "is_valid_dir_path", Path("test_files"), []),
+        ("dir_path", "is_valid_dir_path", PosixPath("foo/foo"), ["dir_path"]),
+        (
+            "dir_path",
+            "is_valid_dir_path",
+            Path("test_files/test_json.json"),
+            ["dir_path"],
+        ),
+        ("file_path", "is_valid_file_path", Path("test_files/test_json.json"), []),
+        ("file_path", "is_valid_file_path", Path("test_files/test_txt.txt"), []),
+        (
+            "file_path",
+            "is_valid_file_path",
+            Path("test_files/test_json.foo"),
+            ["file_path"],
+        ),
+        ("file_path", "is_valid_file_path", Path("test_files"), ["file_path"]),
+        ("json_file", "is_string_represent_json", "foo/foo.json", []),
+        ("json_file", "is_string_represent_json", "foo.json/", ["json_file"]),
+        ("json_file", "is_string_represent_json", "foo++.json", ["json_file"]),
+        ("json_file", "is_string_represent_json", "foo/foo.txt", ["json_file"]),
+    ],
+)
+def test_find_invalid_dict_values(
+    test_table_name: str,
+    test_mapped_function: str,
+    test_target_value: TYPES_IN_DICTIONARY_VALUES,
+    test_result: list,
+):
+    test_function = VALIDATION_DICT[test_mapped_function]
+    list_result = find_invalid_dict_values(
+        test_table_name, test_function, test_target_value
+    )
+    assert list_result == test_result
+
+
+@pytest.mark.parametrize(
+    "test_table_name, test_fn_name, test_target_value, test_result",
+    [
+        ("database_id", "check_int_greater_zero", 1, []),
+        ("database_id", "not_existing_function", 1, ["database_id"]),
+    ],
+)
+def test_validate_functions_for_dictionaries(
+    test_table_name: str,
+    test_fn_name: str,
+    test_target_value: TYPES_IN_DICTIONARY_VALUES,
+    test_result: list,
+):
+    list_result = validate_functions_for_dictionaries(
+        test_table_name, test_fn_name, test_target_value
+    )
+    assert list_result == test_result
+
+
+@pytest.mark.parametrize(
+    "test_invalid_dict_values, test_result",
+    [
+        (["test_key1", "test_key2"], ["test_key1, test_key2"]),
+        (["test_key1"], ["test_key1"]),
+        ([], []),
+    ],
+)
+def test_print_invalid_dictionary(test_invalid_dict_values: list, test_result: str):
+    # 1. remove invalid_dictionaries.txt
+    test_output_dir = Path("test_files")
+    try:
+        os.remove(test_output_dir / "invalid_dictionaries.txt")
+    except IOError:
+        pass
+
+    # 2. assert invalid_dictionaries.txt contents == test_result
+    print_invalid_dictionary(test_invalid_dict_values, test_output_dir)
+    test_complete_path = test_output_dir / "invalid_dictionaries.txt"
+    with open(test_complete_path, "r") as f:
+        file_contents = f.readlines()
+
+    assert file_contents == test_result
+
+    # 3. remove invalid_dictionaries.txt
+    os.remove(test_output_dir / "invalid_dictionaries.txt")
+
+
+def test_iterate_dictionary_config_right(
+    test_target_dict_right: dict, test_dict_name: str, test_config_dictionary: dict
+):
+    result_list = iterate_dictionary_config(
+        test_target_dict_right, test_dict_name, test_config_dictionary
+    )
+    assert result_list == []
+
+
+def test_iterate_dictionary_config_wrong_database_id(
+    test_target_dict_wrong_database_id: dict,
+    test_dict_name: str,
+    test_config_dictionary: dict,
+):
+    result_list = iterate_dictionary_config(
+        test_target_dict_wrong_database_id, test_dict_name, test_config_dictionary
+    )
+    assert result_list == ["database_id"]
+
+
+def test_iterate_dictionary_config_wrong_db_id_and_string(
+    test_target_dict_wrong_db_id_and_string: dict,
+    test_dict_name: str,
+    test_config_dictionary: dict,
+):
+    result_list = iterate_dictionary_config(
+        test_target_dict_wrong_db_id_and_string, test_dict_name, test_config_dictionary
+    )
+    assert result_list == ["database_id", "db_string"]
+
+
+def test_iterate_dictionary_config_wrong_key(
+    test_target_dict_wrong_key: dict, test_dict_name: str, test_config_dictionary: dict
+):
+    with pytest.raises(SystemExit) as ext:
+        iterate_dictionary_config(
+            test_target_dict_wrong_key, test_dict_name, test_config_dictionary
+        )
+        assert ext.type == SystemExit
+
+
+def test_check_dictionary_right(
+    test_target_dict_right: dict,
+    test_dict_name: str,
+    test_dictionary_config_path: Path,
+    test_output_dir: Path,
+):
+    validate_dict = check_dictionary(
+        test_target_dict_right,
+        test_dict_name,
+        test_dictionary_config_path,
+        test_output_dir,
+    )
+    assert validate_dict == test_target_dict_right
+
+
+def test_check_dictionary_wrong_values(
+    test_target_dict_wrong_db_id_and_string: dict,
+    test_dict_name: str,
+    test_dictionary_config_path: Path,
+    test_output_dir: Path,
+):
+    # 1. remove invalid_dictionaries.txt
+    test_output_dir = Path("test_files")
+    try:
+        os.remove(test_output_dir / "invalid_dictionaries.txt")
+    except FileNotFoundError:
+        pass
+
+    # 2. call check_dictionary
+    check_dictionary(
+        test_target_dict_wrong_db_id_and_string,
+        test_dict_name,
+        test_dictionary_config_path,
+        test_output_dir,
+    )
+
+    # 2. assert
+    result = ["database_id, db_string"]
+    test_complete_path = test_output_dir / "invalid_dictionaries.txt"
+    with open(test_complete_path, "r") as f:
+        file_contents = f.readlines()
+
+    assert file_contents == result
+
+    # 3. remove invalid_dictionaries.txt
+    os.remove(test_output_dir / "invalid_dictionaries.txt")
+
+
+def test_check_dictionary_with_wrong_key(
+    test_target_dict_wrong_key: dict,
+    test_dict_name: str,
+    test_dictionary_config_path: Path,
+    test_output_dir: Path,
+):
+    with pytest.raises(SystemExit) as ext:
+        check_dictionary(
+            test_target_dict_wrong_key,
+            test_dict_name,
+            test_dictionary_config_path,
+            test_output_dir,
+        )
+        assert ext.type == SystemExit

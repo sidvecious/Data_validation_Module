@@ -327,8 +327,8 @@ def test_check_string_available_for_database(data: str, result: bool):
 @pytest.mark.parametrize(
     "data, result",
     [
-        (Path("src/data_validation_module"), True),
-        (PosixPath("src/data_validation_module"), True),
+        (Path("../data_validation_module/test_files"), True),
+        (PosixPath("../data_validation_module/test_files"), True),
         (PosixPath("test_files/dictionary_config.json"), False),
         (PosixPath("/foo/foo.bar"), False),
         (Path("/foo/foo.bar"), False),
@@ -347,8 +347,8 @@ def test_is_valid_dir_path(data: Path, result: bool):
     "data, result",
     [
         (Path("src/data_validation_module"), False),
-        (PosixPath("test_files/dictionary_config.json"), True),
-        (Path("test_files/dictionary_config.json"), True),
+        (PosixPath("test_files/test_json.json"), True),
+        (Path("test_files/test_json.json"), True),
         (PosixPath("/foo/foo.bar"), False),
         (Path("/foo/foo.bar"), False),
         (PosixPath("foo/foo"), False),
