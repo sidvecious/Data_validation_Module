@@ -245,13 +245,103 @@ def test_config_dictionary():
     return data_config
 
 
-# used in all tests of check_dictionary,
+# used in test_iterate_dictionary_config_right_dict_1,
+# test_iterate_dictionary_config_wrong_database_id_dict_1
+# test_check_dictionary_with_wrong_key_dict_1
 @pytest.fixture(scope="module")
-def test_dict_name():
-    return "test_target_dict"
+def test_dict_name_1():
+    return "test_target_dict_1"
+
+
+# used in test_iterate_dictionary_config_right_dict_2,
+# test_iterate_dictionary_config_wrong_database_id_dict_2
+# test_iterate_dictionary_config_wrong_db_id_and_string_dict_2
+# test_check_dictionary_wrong_values_dict_2
+@pytest.fixture(scope="module")
+def test_dict_name_2():
+    return "test_target_dict_2"
 
 
 # used in all tests of check_dictionary, iterate_dictionary_config
 @pytest.fixture(scope="module")
 def test_dictionary_config_path():
     return Path("test_files/test_dictionary_config.json")
+
+
+# test_iterate_dict_constraint_right_1
+# test_iterate_dict_constraint_right_2
+# test_iterate_dict_constraint_wrong_db_id_and_string1
+# test_iterate_dict_constraint_wrong_db_id_and_string2
+# test_iterate_dict_constraint_wrong_database_id_1
+# test_iterate_dict_constraint_wrong_database_id_2
+@pytest.fixture(scope="module")
+def test_constraint_test_constraint_or_1(test_config_dictionary):
+    return test_config_dictionary["test_target_dict_2"]["constraints"][0]
+
+
+# test_iterate_dict_rule_right1
+# test_iterate_dict_rule_right2
+# test_iterate_dict_rule_wrong_database_id_1
+# test_iterate_dict_rule_wrong_database_id_2
+@pytest.fixture(scope="module")
+def test_rule_database_id_test_rule_or_1(test_constraint_test_constraint_or_1):
+    return test_constraint_test_constraint_or_1["rules"][0]
+
+
+# test_iterate_dict_validation_right
+# test_iterate_dict_validation_wrong_key
+@pytest.fixture(scope="module")
+def test_table_validation_database_id_test_rule_or_1(
+    test_rule_database_id_test_rule_or_1,
+):
+    return test_rule_database_id_test_rule_or_1[0]
+
+
+# used in test_iterate_dict_rule_wrong_database_id_1
+# test_iterate_dict_constraint_wrong_db_id_and_string1
+@pytest.fixture(scope="module")
+def test_invalid_rule_report_test_rule_or_1():
+    return "Invalid rule test_rule_or_1: for validations ['database_id']\n"
+
+
+# used in test_iterate_dict_constraint_wrong_db_id_and_string1
+@pytest.fixture(scope="module")
+def test_invalid_rule_report_test_rule_or_2():
+    return "Invalid rule test_rule_or_2: for validations ['db_string']\n"
+
+
+# used in test_iterate_dictionary_config_wrong_database_id_dict_1
+@pytest.fixture(scope="module")
+def test_invalid_dictionary_single_rule_failed():
+    invalid_rule_message = "Invalid rule test_rule1: for validations ['database_id']\n"
+    invalid_constraint_message = (
+        "The Constraint test_constraint is not valid, because all the rules fails:\n"
+    )
+    invalid_dictionary_message = "test_target_dict_1 is an Invalid_dictionary:\n"
+    return (
+        invalid_dictionary_message + invalid_constraint_message + invalid_rule_message
+    )
+
+
+# used in test_iterate_dict_constraint_wrong_db_id_and_string1
+@pytest.fixture(scope="module")
+def test_invalid_rule_report_both_rules_broken(
+    test_invalid_rule_report_test_rule_or_1, test_invalid_rule_report_test_rule_or_2
+):
+    invalid_constraint_message = (
+        "The Constraint test_constraint_or is not valid, because all the rules fails:\n"
+    )
+    return (
+        invalid_constraint_message
+        + test_invalid_rule_report_test_rule_or_1
+        + test_invalid_rule_report_test_rule_or_2
+    )
+
+
+# used in test_iterate_dictionary_config_wrong_db_id_and_string_dict_2
+@pytest.fixture(scope="module")
+def test_invalid_dictionary_both_rules_failed(
+    test_invalid_rule_report_both_rules_broken,
+):
+    invalid_dictionary_message = "test_target_dict_2 is an Invalid_dictionary:\n"
+    return invalid_dictionary_message + test_invalid_rule_report_both_rules_broken

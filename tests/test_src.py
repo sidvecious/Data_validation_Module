@@ -14,6 +14,9 @@ from src.data_validation_module.__main__ import (
     find_invalid_data_indices,
     find_invalid_dict_values,
     iterate_data_config,
+    iterate_dict_constraint,
+    iterate_dict_rule,
+    iterate_dict_validation,
     iterate_dictionary_config,
     print_invalid_dictionary,
     read_json_file,
@@ -360,6 +363,179 @@ def test_find_invalid_dict_values(
     assert list_result == test_result
 
 
+def test_iterate_dict_validation_right(
+    test_table_validation_database_id_test_rule_or_1: dict,
+    test_target_dict_right: dict,
+):
+    test_list = []
+    test_result = iterate_dict_validation(
+        test_table_validation_database_id_test_rule_or_1,
+        test_target_dict_right,
+        test_list,
+    )
+    result_list = []
+    assert test_result == result_list
+
+
+def test_iterate_dict_validation_wrong_key(
+    test_table_validation_database_id_test_rule_or_1: dict,
+    test_target_dict_wrong_key: dict,
+):
+    test_list = []
+    with pytest.raises(SystemExit) as ext:
+        iterate_dict_validation(
+            test_table_validation_database_id_test_rule_or_1,
+            test_target_dict_wrong_key,
+            test_list,
+        )
+        assert ext.type == SystemExit
+
+
+def test_iterate_dict_rule_right1(
+    test_rule_database_id_test_rule_or_1: list,
+    test_target_dict_right,
+):
+    test_invalid_rule_report = ""
+    at_least_a_rule_is_working, invalid_rule_report = iterate_dict_rule(
+        test_rule_database_id_test_rule_or_1,
+        test_target_dict_right,
+        test_invalid_rule_report,
+    )
+    assert invalid_rule_report == ""
+
+
+def test_iterate_dict_rule_right2(
+    test_rule_database_id_test_rule_or_1: list,
+    test_target_dict_right: dict,
+):
+    test_invalid_rule_report = ""
+    at_least_a_rule_is_working, invalid_rule_report = iterate_dict_rule(
+        test_rule_database_id_test_rule_or_1,
+        test_target_dict_right,
+        test_invalid_rule_report,
+    )
+    assert at_least_a_rule_is_working
+
+
+def test_iterate_dict_rule_wrong_database_id_1(
+    test_rule_database_id_test_rule_or_1: list,
+    test_target_dict_wrong_database_id: dict,
+    test_invalid_rule_report_test_rule_or_1: str,
+):
+    test_invalid_rule_report = ""
+    at_least_a_rule_is_working, invalid_rule_report = iterate_dict_rule(
+        test_rule_database_id_test_rule_or_1,
+        test_target_dict_wrong_database_id,
+        test_invalid_rule_report,
+    )
+    assert invalid_rule_report == test_invalid_rule_report_test_rule_or_1
+
+
+def test_iterate_dict_rule_wrong_database_id_2(
+    test_rule_database_id_test_rule_or_1: list,
+    test_target_dict_wrong_database_id: dict,
+):
+    test_invalid_rule_report = ""
+    at_least_a_rule_is_working, invalid_rule_report = iterate_dict_rule(
+        test_rule_database_id_test_rule_or_1,
+        test_target_dict_wrong_database_id,
+        test_invalid_rule_report,
+    )
+    assert at_least_a_rule_is_working is False
+
+
+def test_iterate_dict_constraint_right_1(
+    test_constraint_test_constraint_or_1: dict,
+    test_target_dict_right: dict,
+):
+    invalid_dataset_report = ""
+    no_constraint_failed = True
+    invalid_dataset_report, no_constraint_failed = iterate_dict_constraint(
+        test_constraint_test_constraint_or_1,
+        test_target_dict_right,
+        invalid_dataset_report,
+        no_constraint_failed,
+    )
+    assert invalid_dataset_report == ""
+
+
+def test_iterate_dict_constraint_right_2(
+    test_constraint_test_constraint_or_1: dict,
+    test_target_dict_right: dict,
+):
+    invalid_dataset_report = ""
+    no_constraint_failed = True
+    invalid_dataset_report, no_constraint_failed = iterate_dict_constraint(
+        test_constraint_test_constraint_or_1,
+        test_target_dict_right,
+        invalid_dataset_report,
+        no_constraint_failed,
+    )
+    assert no_constraint_failed
+
+
+def test_iterate_dict_constraint_wrong_database_id_1(
+    test_constraint_test_constraint_or_1: dict,
+    test_target_dict_wrong_database_id: dict,
+):
+    invalid_dataset_report = ""
+    no_constraint_failed = True
+    invalid_dataset_report, no_constraint_failed = iterate_dict_constraint(
+        test_constraint_test_constraint_or_1,
+        test_target_dict_wrong_database_id,
+        invalid_dataset_report,
+        no_constraint_failed,
+    )
+    result_string = ""
+    assert invalid_dataset_report == result_string
+
+
+def test_iterate_dict_constraint_wrong_database_id_2(
+    test_constraint_test_constraint_or_1: dict,
+    test_target_dict_wrong_database_id: dict,
+):
+    invalid_dataset_report = ""
+    no_constraint_failed = True
+    invalid_dataset_report, no_constraint_failed = iterate_dict_constraint(
+        test_constraint_test_constraint_or_1,
+        test_target_dict_wrong_database_id,
+        invalid_dataset_report,
+        no_constraint_failed,
+    )
+    assert no_constraint_failed
+
+
+def test_iterate_dict_constraint_wrong_db_id_and_string1(
+    test_constraint_test_constraint_or_1: dict,
+    test_target_dict_wrong_db_id_and_string: dict,
+    test_invalid_rule_report_both_rules_broken: str,
+):
+    invalid_dataset_report = ""
+    no_constraint_failed = True
+    invalid_dataset_report, no_constraint_failed = iterate_dict_constraint(
+        test_constraint_test_constraint_or_1,
+        test_target_dict_wrong_db_id_and_string,
+        invalid_dataset_report,
+        no_constraint_failed,
+    )
+    assert invalid_dataset_report == test_invalid_rule_report_both_rules_broken
+
+
+def test_iterate_dict_constraint_wrong_db_id_and_string2(
+    test_constraint_test_constraint_or_1: dict,
+    test_target_dict_wrong_db_id_and_string: dict,
+):
+    invalid_dataset_report = ""
+    no_constraint_failed = True
+    invalid_dataset_report, no_constraint_failed = iterate_dict_constraint(
+        test_constraint_test_constraint_or_1,
+        test_target_dict_wrong_db_id_and_string,
+        invalid_dataset_report,
+        no_constraint_failed,
+    )
+    assert not no_constraint_failed
+
+
 @pytest.mark.parametrize(
     "test_table_name, test_fn_name, test_target_value, test_result",
     [
@@ -380,14 +556,10 @@ def test_validate_functions_for_dictionaries(
 
 
 @pytest.mark.parametrize(
-    "test_invalid_dict_values, test_result",
-    [
-        (["test_key1", "test_key2"], ["test_key1, test_key2"]),
-        (["test_key1"], ["test_key1"]),
-        ([], []),
-    ],
+    "test_invalid_dataset_report, test_result",
+    [("print_test_1, print_test_2", "print_test_1, print_test_2"), ("", "")],
 )
-def test_print_invalid_dictionary(test_invalid_dict_values: list, test_result: str):
+def test_print_invalid_dictionary(test_invalid_dataset_report: str, test_result: str):
     # 1. remove invalid_dictionaries.txt
     test_output_dir = Path("test_files")
     try:
@@ -396,10 +568,10 @@ def test_print_invalid_dictionary(test_invalid_dict_values: list, test_result: s
         pass
 
     # 2. assert invalid_dictionaries.txt contents == test_result
-    print_invalid_dictionary(test_invalid_dict_values, test_output_dir)
+    print_invalid_dictionary(test_invalid_dataset_report, test_output_dir)
     test_complete_path = test_output_dir / "invalid_dictionaries.txt"
-    with open(test_complete_path, "r") as f:
-        file_contents = f.readlines()
+    with open(test_complete_path) as f:
+        file_contents = " ".join(line.strip() for line in f)
 
     assert file_contents == test_result
 
@@ -407,65 +579,80 @@ def test_print_invalid_dictionary(test_invalid_dict_values: list, test_result: s
     os.remove(test_output_dir / "invalid_dictionaries.txt")
 
 
-def test_iterate_dictionary_config_right(
-    test_target_dict_right: dict, test_dict_name: str, test_config_dictionary: dict
+def test_iterate_dictionary_config_right_dict_1(
+    test_target_dict_right: dict, test_dict_name_1: str, test_config_dictionary: dict
 ):
-    result_list = iterate_dictionary_config(
-        test_target_dict_right, test_dict_name, test_config_dictionary
+    result_invalid_report = iterate_dictionary_config(
+        test_target_dict_right, test_dict_name_1, test_config_dictionary
     )
-    assert result_list == []
+    assert result_invalid_report == ""
 
 
-def test_iterate_dictionary_config_wrong_database_id(
+def test_iterate_dictionary_config_right_dict_2(
+    test_target_dict_right: dict, test_dict_name_2: str, test_config_dictionary: dict
+):
+    result_invalid_report = iterate_dictionary_config(
+        test_target_dict_right, test_dict_name_2, test_config_dictionary
+    )
+    assert result_invalid_report == ""
+
+
+def test_iterate_dictionary_config_wrong_database_id_dict_1(
     test_target_dict_wrong_database_id: dict,
-    test_dict_name: str,
+    test_dict_name_1: str,
+    test_config_dictionary: dict,
+    test_invalid_dictionary_single_rule_failed: str,
+):
+    test_invalid_report = iterate_dictionary_config(
+        test_target_dict_wrong_database_id, test_dict_name_1, test_config_dictionary
+    )
+    assert test_invalid_dictionary_single_rule_failed == test_invalid_report
+
+
+def test_iterate_dictionary_config_wrong_database_id_dict_2(
+    test_target_dict_wrong_database_id: dict,
+    test_dict_name_2: str,
     test_config_dictionary: dict,
 ):
-    result_list = iterate_dictionary_config(
-        test_target_dict_wrong_database_id, test_dict_name, test_config_dictionary
+    test_invalid_report = iterate_dictionary_config(
+        test_target_dict_wrong_database_id, test_dict_name_2, test_config_dictionary
     )
-    assert result_list == ["database_id"]
+    result_invalid_report = ""
+    assert result_invalid_report == test_invalid_report
 
 
-def test_iterate_dictionary_config_wrong_db_id_and_string(
+def test_iterate_dictionary_config_wrong_db_id_and_string_dict_2(
     test_target_dict_wrong_db_id_and_string: dict,
-    test_dict_name: str,
+    test_dict_name_2: str,
     test_config_dictionary: dict,
+    test_invalid_dictionary_both_rules_failed: str,
 ):
-    result_list = iterate_dictionary_config(
-        test_target_dict_wrong_db_id_and_string, test_dict_name, test_config_dictionary
+    test_invalid_report = iterate_dictionary_config(
+        test_target_dict_wrong_db_id_and_string,
+        test_dict_name_2,
+        test_config_dictionary,
     )
-    assert result_list == ["database_id", "db_string"]
-
-
-def test_iterate_dictionary_config_wrong_key(
-    test_target_dict_wrong_key: dict, test_dict_name: str, test_config_dictionary: dict
-):
-    with pytest.raises(SystemExit) as ext:
-        iterate_dictionary_config(
-            test_target_dict_wrong_key, test_dict_name, test_config_dictionary
-        )
-        assert ext.type == SystemExit
+    assert test_invalid_report == test_invalid_dictionary_both_rules_failed
 
 
 def test_check_dictionary_right(
     test_target_dict_right: dict,
-    test_dict_name: str,
+    test_dict_name_2: str,
     test_dictionary_config_path: Path,
     test_output_dir: Path,
 ):
     validate_dict = check_dictionary(
         test_target_dict_right,
-        test_dict_name,
+        test_dict_name_2,
         test_dictionary_config_path,
         test_output_dir,
     )
     assert validate_dict == test_target_dict_right
 
 
-def test_check_dictionary_wrong_values(
+def test_check_dictionary_wrong_values_dict_2(
     test_target_dict_wrong_db_id_and_string: dict,
-    test_dict_name: str,
+    test_dict_name_2: str,
     test_dictionary_config_path: Path,
     test_output_dir: Path,
 ):
@@ -479,33 +666,33 @@ def test_check_dictionary_wrong_values(
     # 2. call check_dictionary
     check_dictionary(
         test_target_dict_wrong_db_id_and_string,
-        test_dict_name,
+        test_dict_name_2,
         test_dictionary_config_path,
         test_output_dir,
     )
 
-    # 2. assert
-    result = ["database_id, db_string"]
+    # 3. assert
+    result = "test_target_dict_2 is an Invalid_dictionary: The Constraint test_constraint_or is not valid, because all the rules fails: Invalid rule test_rule_or_1: for validations ['database_id'] Invalid rule test_rule_or_2: for validations ['db_string']"
     test_complete_path = test_output_dir / "invalid_dictionaries.txt"
     with open(test_complete_path, "r") as f:
-        file_contents = f.readlines()
+        file_contents = " ".join(line.strip() for line in f)
 
     assert file_contents == result
 
-    # 3. remove invalid_dictionaries.txt
+    # 4. remove invalid_dictionaries.txt
     os.remove(test_output_dir / "invalid_dictionaries.txt")
 
 
-def test_check_dictionary_with_wrong_key(
+def test_check_dictionary_with_wrong_key_dict_1(
     test_target_dict_wrong_key: dict,
-    test_dict_name: str,
+    test_dict_name_1: str,
     test_dictionary_config_path: Path,
     test_output_dir: Path,
 ):
     with pytest.raises(SystemExit) as ext:
         check_dictionary(
             test_target_dict_wrong_key,
-            test_dict_name,
+            test_dict_name_1,
             test_dictionary_config_path,
             test_output_dir,
         )

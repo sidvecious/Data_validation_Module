@@ -179,39 +179,102 @@ def validate_functions_for_dictionaries(
 
 
 # print the invalid values of the target dictionary, for validate dictionaries
-def print_invalid_dictionary(invalid_dict_values: list, output_dir: Path):
-    invalid_dict_string = ", ".join(str(element) for element in invalid_dict_values)
+def print_invalid_dictionary(invalid_dataset_report: str, output_dir: Path):
     complete_path = output_dir / "invalid_dictionaries.txt"
     with open(complete_path, "w") as f:
-        f.write(invalid_dict_string)
+        f.write(invalid_dataset_report)
 
 
-# iterate function for validate dictionaries
-def iterate_dictionary_config(target_dict: dict, dict_name: str, data_config: dict):
+# check if the validation is valid
+def iterate_dict_validation(
+    table_validation: dict, target_dict: dict, invalid_dict_values: list
+):
+
+    fn_name = table_validation["validation"][0]
+    table_name = table_validation["table_name"]
+    try:
+        target_value = target_dict[table_name]
+    except KeyError:
+        logger.error(f"target value {table_name} is not in the dictionary")
+        logger.error("check if the configuration file has the right table names")
+        sys.exit()
+    invalid_dict_values.extend(
+        validate_functions_for_dictionaries(table_name, fn_name, target_value)
+    )
+    logger.debug(
+        f"{invalid_dict_values}invalid_dict_values at the end for table {table_name}"
+    )
+
+    return invalid_dict_values
+
+
+# check if ALL the validations in a rule are valid
+def iterate_dict_rule(rule: list, target_dict: dict, invalid_rule_report: str):
+    at_least_a_rule_is_working = False
+    rule_name = "this is a placeholder, if you read it something goes wrong!"
     invalid_dict_values = []
+    for table_validation in rule:
+        invalid_dict_values = iterate_dict_validation(
+            table_validation, target_dict, invalid_dict_values
+        )
+        # the rule name is always the same in a rule
+        rule_name = table_validation["rule_name"]
+
+    if len(invalid_dict_values) == 0:
+        logger.info(f"rule {rule_name} is valid")
+        at_least_a_rule_is_working = True
+    else:
+        invalid_rule_report += (
+            f"Invalid rule {rule_name}: for validations {invalid_dict_values}\n"
+        )
+        logger.error(invalid_rule_report)
+    return at_least_a_rule_is_working, invalid_rule_report
+
+
+# check if ANY rule in a constraint is valid
+def iterate_dict_constraint(
+    constraint: dict,
+    target_dict: dict,
+    invalid_dataset_report: str,
+    no_constraint_failed: bool,
+):
+    constraint_name = constraint["constraint_name"]
+    invalid_rule_report = ""
+    for rule in constraint["rules"]:
+
+        at_least_a_rule_is_working, invalid_rule_report = iterate_dict_rule(
+            rule, target_dict, invalid_rule_report
+        )
+        if at_least_a_rule_is_working:
+            logger.info(f"constraint {constraint_name} is valid")
+            return invalid_dataset_report, no_constraint_failed
+
+    else:
+        constraint_failure_message = f"The Constraint {constraint_name} is not valid, because all the rules fails:\n"
+        invalid_dataset_report += constraint_failure_message + invalid_rule_report
+        no_constraint_failed = False
+
+    return invalid_dataset_report, no_constraint_failed
+
+
+# check if ALL constraint in a dictionary are valid
+def iterate_dictionary_config(target_dict: dict, dict_name: str, data_config: dict):
+    invalid_dataset_report = ""
     if dict_name in data_config:
+        no_constraint_failed = True
         dict_config = data_config[dict_name]
         for constraint in dict_config["constraints"]:
-            for rule in constraint["rules"]:
-                for table_validation in rule:
-                    fn_name = table_validation["validation"][0]
-                    table_name = table_validation["table_name"]
-                    try:
-                        target_value = target_dict[table_name]
-                    except KeyError:
-                        logger.error(
-                            f"target value {table_name} is not in the dictionary"
-                        )
-                        logger.error(
-                            "check if the configuration file has the right table names"
-                        )
-                        sys.exit()
-                    invalid_dict_values.extend(
-                        validate_functions_for_dictionaries(
-                            table_name, fn_name, target_value
-                        )
-                    )
-    return invalid_dict_values
+
+            invalid_dataset_report, no_constraint_failed = iterate_dict_constraint(
+                constraint, target_dict, invalid_dataset_report, no_constraint_failed
+            )
+
+        if not no_constraint_failed:
+            invalid_dataset_report = (
+                f"{dict_name} is an Invalid_dictionary:\n" + invalid_dataset_report
+            )
+
+    return invalid_dataset_report
 
 
 # main function for validate dictionaries
@@ -219,10 +282,12 @@ def check_dictionary(
     target_dict: dict, dict_name: str, dictionary_config_path: Path, output_dir: Path
 ):
     data_config = read_json_file(dictionary_config_path)
-    invalid_dict_values = iterate_dictionary_config(target_dict, dict_name, data_config)
-    if len(invalid_dict_values) > 0:
-        logger.error(f"Invalid values in the dictionary: {invalid_dict_values}")
-        print_invalid_dictionary(invalid_dict_values, output_dir)
+    invalid_dataset_report = iterate_dictionary_config(
+        target_dict, dict_name, data_config
+    )
+    if len(invalid_dataset_report) > 0:
+        logger.error(invalid_dataset_report)
+        print_invalid_dictionary(invalid_dataset_report, output_dir)
     else:
         logger.info("Dictionary successfully validated")
     return target_dict

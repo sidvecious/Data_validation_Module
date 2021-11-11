@@ -20,16 +20,43 @@ A tool with different functions for the data validation
 
 ## Description
 
-The steps of data harmonization and collection are performed in Seqana with two separate modules: the Soil Data Harmonization module and the module Upload To PosgreSQL.
-The data validation module consists of a collection of functions for internal use by Seqana for automatic data validation.
-The functions are called within the two main modules to check the consistency, integrity, usefulness, and accuracy of the dataset being harmonized and uploaded.
-Seqana is a B2B start-up company specializing in satellite monitoring of soil organic carbon (SOC) for the voluntary carbon market.
+The steps of data harmonization and collection are performed in Seqana with two separate modules: 
+the Soil Data Harmonization module and the module Upload To PosgreSQL.
+The data validation module consists of a collection of functions for internal use by Seqana for automatic data 
+validation.
+The functions are called within the two main modules to check the consistency, integrity, usefulness, 
+and accuracy of the dataset being harmonized and uploaded.
+Seqana is a B2B start-up company specializing in satellite monitoring of soil organic carbon (SOC) for the voluntary 
+carbon market.
 To get good predictions of soil carbon content, the data in the database must be of high quality.
 The data validation module is used to extend and unify data validation for the main modules.
-The data structure to be analyzed as part of the data validation module is the DataFrame, a class in the Python library Pandas.
+The data structures to be analyzed as part of the data validation module are:
+
+1. The DataFrame, a two-dimensional tabular data structure in the Python library Pandas 
 During validation, the following parameters are checked:
-    1. data type in the rows of the DataFrame.
-    2. semantic restriction of the data.
+    A. consistency of the Series names with the configuration json file
+    B. data type in the rows of the DataFrame.
+    C. semantic restriction of the data.
+Dataframe configuration file: 
+Several dataframes can be encoded in the json configuration file, 
+each dataframe has a list of columns to validate, 
+for each column there is one or more validations.
+
+2. The Dictionary, an unordered mutable Python container with a key-values pairs
+During validation, the following parameters are checked:
+    A. consistency of the keys with the configuration json file 
+    B. data Type of the values
+    C. semantic restriction of the values
+Dictionary configuration file:
+Several dictionaries can be encoded in the json configuration file, 
+The validation of each dictionary is composed of a 3-level nested structure AND, OR, AND. 
+   - for each dictionary there are one or more constraints, the dictionary is valid if all the constraints are valid
+   - for each Constraint there are one or more rules, the Constraint is valid if at least one rule is true.
+   - for each rule there are one or more key-value pairs of the dictionary to validate, 
+   the rule is valid if all the key-value pairs inside this rule are valid.  
+Note that the same key-value pair of the dictionary can belong to different rules because 
+in the Soil_data_harmonization dictionary, it is possible to have different combinations of non-zero values to get 
+a valid dictionary.
 
 ----
 
@@ -77,10 +104,12 @@ python -m pip install git+https://gitlab.com/cquest1/prototypes/data_validation_
 
 
 ## TODO
+1 - Test validation of dictionaries in production
+2 - Validation functions should be added for JSON file
+3 - Validation functions should be added for pandas Series
+4 - The architecture with dictionary must be replaced with a Class design
 
-1 - The architecture with dictionary must be replaced with a Class design
-2 - Validation functions should be added for pandas Series
-3 - Validation functions should be added for JSON file
+
 
 ----
 

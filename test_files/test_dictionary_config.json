@@ -1,5 +1,5 @@
 {
-    "test_target_dict": {
+    "test_target_dict_1": {
         "constraints": [
             {
                 "constraint_name": "test_constraint",
@@ -35,6 +35,63 @@
                         },
                         {
                             "rule_name": "test_rule1",
+                            "table_name": "json_file",
+                            "validation": [
+                                "is_string_represent_json"
+                            ]
+                        }
+                    ]
+                ]
+            }
+        ]
+    },
+    "test_target_dict_2": {
+        "constraints": [
+            {
+                "constraint_name": "test_constraint_or",
+                "rules": [
+                    [
+                        {
+                            "rule_name": "test_rule_or_1",
+                            "table_name": "database_id",
+                            "validation": [
+                                "check_int_greater_zero"
+                            ]
+                        }
+                    ],
+                    [
+                        {
+                            "rule_name": "test_rule_or_2",
+                            "table_name": "db_string",
+                            "validation": [
+                                "check_string_available_for_database"
+                            ]
+                        }
+                    ]
+                ]
+            },
+            {
+                "constraint_name": "test_constraint_or_and",
+                "rules": [
+                    [
+                        {
+                            "rule_name": "test_rule_and",
+                            "table_name": "dir_path",
+                            "validation": [
+                                "is_valid_dir_path"
+                            ]
+                        },
+                        {
+                            "rule_name": "test_rule_and",
+                            "table_name": "file_path",
+                            "validation": [
+                                "is_valid_file_path"
+                            ]
+                        }
+                    ],
+                    [
+                        {
+                            "rule_name": "test_rule_or_3",
                             "table_name": "json_file",
                             "validation": [
                                 "is_string_represent_json"
