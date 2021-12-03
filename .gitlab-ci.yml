@@ -1,11 +1,17 @@
 pip installimage: "python:3.9-slim"
 
 before_script:
-  - python --version
   - apt-get update
   - apt-get install -y --no-install-recommends curl git
-  - apt-get purge -y --auto-remove
-  - pip install -r requirements.txt
+  - curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | python
+  # setup string replacement
+  - export ORIGINAL_URL=https:\\/\\/gitlab.com\\/cquest1
+  - export TOKEN_URL=https:\\/\\/$seqana_read_repos_username:$seqana_read_repos_token@gitlab.com\\/cquest1
+  - sed -i "s/$ORIGINAL_URL/$TOKEN_URL/g" pyproject.toml
+  - export PATH="$PATH:$HOME/.poetry/bin/"
+  - source $HOME/.poetry/env
+  - poetry install --no-dev
+  - source `poetry env info --path`/bin/activate
 
 stages:
   - test
@@ -14,4 +20,3 @@ testing:
   script:
   - flake8 --max-line-length=120 data_validation_module/*.py
   - python -m pytest -vvv --cov=data_validation_module
-  - coverage xml -o coverage.xml

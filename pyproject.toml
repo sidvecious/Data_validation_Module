@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "data-validation-module"
-version = "0.1.12"
+version = "0.1.13"
 description = "A tool with different functions for the data validation."
 authors = ["Lorenzo Olivier <lorenzo.o@seqana.com>"]
 license = "Proprietary"
