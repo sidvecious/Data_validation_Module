@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 from loguru import logger
 
-from src.data_validation_module.__main__ import (
+from data_validation_module.__main__ import (
     TYPES_IN_DICTIONARY_VALUES,
     VALIDATION_DICT,
     check_dataframe,

@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from src.data_validation_module.row_validations import (
+from data_validation_module.row_validations import (
     check_int_greater_zero,
     check_positive_int,
     check_positive_int_or_Null,

@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
-from src.data_validation_module.row_validations import (
+from data_validation_module.row_validations import (
     check_int_greater_zero,
     check_positive_int,
     check_positive_int_or_Null,
@@ -37,8 +37,6 @@ VALID_DATA = 1
 INVALID_DATA = 0
 VALID_DATA_COLUMN = "is_valid_data"
 TYPES_IN_DICTIONARY_VALUES = Union[int, str, Path, PosixPath]
-
-
 VALIDATION_DICT = {
     "datestring_has_format_yyyy_mm_dd": datestring_has_format_yyyy_mm_dd,
     "string_has_format_nnn_mmm": string_has_format_nnn_mmm,

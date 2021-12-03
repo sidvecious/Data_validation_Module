@@ -5,7 +5,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from src.data_validation_module.__main__ import VALID_DATA_COLUMN, VALIDATION_DICT
+from data_validation_module.__main__ import VALID_DATA_COLUMN, VALIDATION_DICT
 
 
 # test_data for test_df
