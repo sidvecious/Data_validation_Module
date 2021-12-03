@@ -92,7 +92,7 @@ git clone --recurse-submodules https://www.gitlab.com/cquest1/prototypes/data_va
 ### Installing the python package
 
 ```bash
-python -m pip install git+https://gitlab.com/cquest1/prototypes/data_validation_module@0.1.13
+python -m pip install git+https://gitlab.com/cquest1/prototypes/data_validation_module@0.1.14
 ```
 
 

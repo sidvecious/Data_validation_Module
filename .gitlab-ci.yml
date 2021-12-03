@@ -1,4 +1,4 @@
-pip installimage: "python:3.9-slim"
+image: "python:3.9-slim"
 
 before_script:
   - apt-get update
