@@ -18,5 +18,5 @@ stages:
 testing:
   stage: test
   script:
-  - flake8 --max-line-length=120 data_validation_module/*.py
-  - python -m pytest -vvv --cov=data_validation_module
+  - flake8 --max-line-length=120 src/data_validation_module/*.py tests/*.py
+  - python -m pytest -vvv --cov=src/data_validation_module
