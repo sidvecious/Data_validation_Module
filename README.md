@@ -58,6 +58,14 @@ Note that the same key-value pair of the dictionary can belong to different rule
 in the Soil_data_harmonization dictionary, it is possible to have different combinations of non-zero values to get
 a valid dictionary.
 
+3. Json File.
+During validation, the following parameters are checked:
+    A. consistency of the keys with the configuration json file
+    B. data Type of the values
+    C. semantic restriction of the values
+Json Configuration File:
+Preserves the same characteristics of dictionaries,
+key/value data structures nested up to the first level can be validated with "attribute: nested".  
 ----
 
 ## Development
@@ -92,7 +100,7 @@ git clone --recurse-submodules https://www.gitlab.com/cquest1/prototypes/data_va
 ### Installing the python package
 
 ```bash
-python -m pip install git+https://gitlab.com/cquest1/prototypes/data_validation_module@0.1.15
+python -m pip install git+https://gitlab.com/cquest1/prototypes/data_validation_module@0.1.16
 ```
 
 
@@ -105,9 +113,9 @@ python -m pip install git+https://gitlab.com/cquest1/prototypes/data_validation_
 
 ## TODO
 1 - Test validation of dictionaries in production
-2 - Validation functions should be added for JSON file
-3 - Validation functions should be added for pandas Series
-4 - The architecture with dictionary must be replaced with a Class design
+2 - Validation functions should be added for pandas Series
+3 - The architecture with dictionary must be replaced with a Class design
+4 - Validation functions should be improved for validate nested json/dictionaries above first level
 
 
 

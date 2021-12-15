@@ -6,6 +6,7 @@
                 "rules": [
                     [
                         {
+                            "structure": "linear",
                             "rule_name": "test_rule1",
                             "table_name": "database_id",
                             "validation": [
@@ -13,6 +14,7 @@
                             ]
                         },
                         {
+                            "structure": "linear",
                             "rule_name": "test_rule1",
                             "table_name": "db_string",
                             "validation": [
@@ -20,6 +22,7 @@
                             ]
                         },
                         {
+                            "structure": "linear",
                             "rule_name": "test_rule1",
                             "table_name": "dir_path",
                             "validation": [
@@ -27,6 +30,7 @@
                             ]
                         },
                         {
+                            "structure": "linear",
                             "rule_name": "test_rule1",
                             "table_name": "file_path",
                             "validation": [
@@ -34,6 +38,7 @@
                             ]
                         },
                         {
+                            "structure": "linear",
                             "rule_name": "test_rule1",
                             "table_name": "json_file",
                             "validation": [
@@ -52,6 +57,7 @@
                 "rules": [
                     [
                         {
+                            "structure": "linear",
                             "rule_name": "test_rule_or_1",
                             "table_name": "database_id",
                             "validation": [
@@ -61,6 +67,7 @@
                     ],
                     [
                         {
+                            "structure": "linear",
                             "rule_name": "test_rule_or_2",
                             "table_name": "db_string",
                             "validation": [
@@ -75,6 +82,7 @@
                 "rules": [
                     [
                         {
+                            "structure": "linear",
                             "rule_name": "test_rule_and",
                             "table_name": "dir_path",
                             "validation": [
@@ -82,6 +90,7 @@
                             ]
                         },
                         {
+                            "structure": "linear",
                             "rule_name": "test_rule_and",
                             "table_name": "file_path",
                             "validation": [
@@ -91,10 +100,61 @@
                     ],
                     [
                         {
+                            "structure": "linear",
                             "rule_name": "test_rule_or_3",
                             "table_name": "json_file",
                             "validation": [
                                 "is_string_represent_json"
+                            ]
+                        }
+                    ]
+                ]
+            }
+        ]
+    },
+    "test_target_nested_dict_1": {
+        "constraints": [
+            {
+                "constraint_name": "double_layer",
+                "rules": [
+                    [
+                        {
+                            "structure": "nested",
+                            "rule_name": "unique_rule",
+                            "table_name": "db_table_name",
+                            "validation": [
+                                "is_type_string"
+                            ]
+                        },
+                        {
+                            "structure": "nested",
+                            "rule_name": "unique_rule",
+                            "table_name": "number",
+                            "validation": [
+                                "check_int_greater_zero"
+                            ]
+                        }
+                    ]
+                ]
+            },
+            {
+                "constraint_name": "single_layer",
+                "rules": [
+                    [
+                        {
+                            "structure": "linear",
+                            "rule_name": "unique_rule",
+                            "table_name": "clay_percent",
+                            "validation": [
+                                "is_a_dictionary"
+                            ]
+                        },
+                        {
+                            "structure": "linear",
+                            "rule_name": "unique_rule",
+                            "table_name": "sand_percent",
+                            "validation": [
+                                "is_a_dictionary"
                             ]
                         }
                     ]

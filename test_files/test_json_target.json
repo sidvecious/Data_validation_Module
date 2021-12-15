@@ -1,0 +1,9 @@
+{
+    "clay_percent": {
+        "db_table_name": "aaa",
+        "number": 2
+    },
+    "sand_percent": {
+        "db_table_name": "bbb"
+    }
+}

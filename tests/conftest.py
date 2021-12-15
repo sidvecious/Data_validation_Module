@@ -146,6 +146,11 @@ def test_db_id_column(test_df):
     return df.db_id
 
 
+@pytest.fixture(scope="module")
+def test_invalid_dictionary_name():
+    return "invalid_dictionaries.txt"
+
+
 # test_df is used in test_iterate_data_config and test_read_json_file
 # single_column_test is used for test find_invalid_data_indices, with mark parametrize
 # the structure of json is:
@@ -236,6 +241,31 @@ def test_target_dict_wrong_key(test_target_dict_right):
     return new_dict
 
 
+# test_iterate_nested_dict_validation_right
+@pytest.fixture(scope="module")
+def test_target_nested_dict_right():
+    return {
+        "clay_percent": {"db_table_name": "aaa", "number": 2},
+        "sand_percent": {"db_table_name": "bbb"},
+    }
+
+
+@pytest.fixture(scope="module")
+def test_target_nested_dict_wrong_db_table_name(test_target_nested_dict_right):
+    new_dict = copy.deepcopy(test_target_nested_dict_right)
+    new_dict["clay_percent"]["db_table_name"] = 123
+    return new_dict
+
+
+@pytest.fixture(scope="module")
+def test_target_nested_dict_two_tables_wrong(
+    test_target_nested_dict_wrong_db_table_name,
+):
+    new_dict = copy.deepcopy(test_target_nested_dict_wrong_db_table_name)
+    new_dict["clay_percent"]["number"] = []
+    return new_dict
+
+
 # used in all tests of the function: iterate_dictionary_config
 @pytest.fixture(scope="module")
 def test_config_dictionary():
@@ -262,10 +292,35 @@ def test_dict_name_2():
     return "test_target_dict_2"
 
 
+# test_check_target_json_right
+@pytest.fixture(scope="module")
+def test_nested_dict_name_1():
+    return "test_target_nested_dict_1"
+
+
+# test_check_wrong_dictionary_or_json_name
+@pytest.fixture(scope="module")
+def test_wrong_dict_name():
+    return "non-existent dictionary"
+
+
+# test_check_target_json_right
+@pytest.fixture(scope="module")
+def test_target_json_path():
+    return Path("test_files/test_json_target.json")
+
+
 # used in all tests of check_dictionary, iterate_dictionary_config
+# test_check_target_json_right
 @pytest.fixture(scope="module")
 def test_dictionary_config_path():
     return Path("test_files/test_dictionary_config.json")
+
+
+# test_check_target_json_wrong_values_1
+@pytest.fixture(scope="module")
+def test_temporary_json_config_path():
+    return Path("test_files/test_temporary_json_config.json")
 
 
 # test_iterate_dict_constraint_right_1
@@ -297,6 +352,67 @@ def test_table_validation_database_id_test_rule_or_1(
     return test_rule_database_id_test_rule_or_1[0]
 
 
+# test_iterate_nested_dict_validation_right
+# test_iterate_nested_dict_validation_wrong_db_table_name
+# test_iterate_nested_dict_validation_number_wrong
+@pytest.fixture(scope="module")
+def test_constraint_nested_double_layer_1(test_config_dictionary):
+    return test_config_dictionary["test_target_nested_dict_1"]["constraints"][0]
+
+
+# test_iterate_nested_dict_validation_right
+# test_iterate_nested_dict_validation_wrong_db_table_name
+# test_iterate_nested_dict_validation_number_wrong
+@pytest.fixture(scope="module")
+def test_rule_nested_unique_rule_1(test_constraint_nested_double_layer_1):
+    return test_constraint_nested_double_layer_1["rules"][0]
+
+
+# test_iterate_nested_dict_validation_right
+# test_iterate_nested_dict_validation_wrong_db_table_name
+@pytest.fixture(scope="module")
+def test_table_validation_nested_db_table_name_1(test_rule_nested_unique_rule_1):
+    return test_rule_nested_unique_rule_1[0]
+
+
+# test_iterate_nested_dict_validation_number_wrong
+@pytest.fixture(scope="module")
+def test_table_validation_nested_number_1(test_rule_nested_unique_rule_1):
+    return test_rule_nested_unique_rule_1[1]
+
+
+# test_iterate_nested_dict_constraint_wrong_1
+@pytest.fixture(scope="module")
+def test_invalid_nested_rule_report_1():
+    return "Invalid rule unique_rule: for validations ['db_table_name']\n"
+
+
+# test_iterate_nested_dict_constraint_wrong_2
+@pytest.fixture(scope="module")
+def test_invalid_nested_rule_report_2():
+    return "Invalid rule unique_rule: for validations ['db_table_name', 'number']\n"
+
+
+# used in test_iterate_dictionary_config_wrong_database_id_dict_1
+@pytest.fixture(scope="module")
+def test_invalid_nested_dictionary_constraint_failed(test_invalid_nested_rule_report_1):
+    invalid_constraint_message = (
+        "The Constraint double_layer is not valid, because all the rules fails:\n"
+    )
+    return invalid_constraint_message + test_invalid_nested_rule_report_1
+
+
+# test_iterate_nested_dict_constraint_wrong_2
+@pytest.fixture(scope="module")
+def test_invalid_nested_dictionary_constraint_failed_two_times(
+    test_invalid_nested_rule_report_2,
+):
+    invalid_constraint_message = (
+        "The Constraint double_layer is not valid, because all the rules fails:\n"
+    )
+    return invalid_constraint_message + test_invalid_nested_rule_report_2
+
+
 # used in test_iterate_dict_rule_wrong_database_id_1
 # test_iterate_dict_constraint_wrong_db_id_and_string1
 @pytest.fixture(scope="module")
@@ -317,7 +433,7 @@ def test_invalid_dictionary_single_rule_failed():
     invalid_constraint_message = (
         "The Constraint test_constraint is not valid, because all the rules fails:\n"
     )
-    invalid_dictionary_message = "test_target_dict_1 is an Invalid_dictionary:\n"
+    invalid_dictionary_message = "test_target_dict_1 is Invalid:\n"
     return (
         invalid_dictionary_message + invalid_constraint_message + invalid_rule_message
     )
@@ -343,5 +459,5 @@ def test_invalid_rule_report_both_rules_broken(
 def test_invalid_dictionary_both_rules_failed(
     test_invalid_rule_report_both_rules_broken,
 ):
-    invalid_dictionary_message = "test_target_dict_2 is an Invalid_dictionary:\n"
+    invalid_dictionary_message = "test_target_dict_2 is Invalid:\n"
     return invalid_dictionary_message + test_invalid_rule_report_both_rules_broken

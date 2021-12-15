@@ -13,6 +13,10 @@ from data_validation_module.row_validations import (
     check_string_available_for_database,
     check_type_of_row,
     datestring_has_format_yyyy_mm_dd,
+    is_a_dictionary,
+    is_a_list_with_unique_lowercase_db_strings,
+    is_a_list_with_unique_lowercase_strings,
+    is_a_lowercase_db_string,
     is_greater_zero_or_null,
     is_neither_npnan_nor_none,
     is_string_represent_json,
@@ -24,6 +28,7 @@ from data_validation_module.row_validations import (
     is_valid_longitude,
     is_valid_percent_value_or_null,
     is_valid_ratio_value_or_null,
+    is_valid_schema_and_table,
     string_has_format_nnn_mmm,
 )
 
@@ -375,3 +380,96 @@ def test_is_valid_file_path(data: Path, result: bool):
 )
 def test_is_string_represent_json(data: str, result: bool):
     assert is_string_represent_json(data) == result
+
+
+@pytest.mark.parametrize(
+    "data, result",
+    [
+        ({"a": 1}, True),
+        ("{'a': 1}", False),
+        ([1, 2, 3], False),
+        ({"a", "b", "c"}, False),
+        ("&", False),
+        (None, False),
+        (23, False),
+        (np.NaN, False),
+    ],
+)
+def test_is_a_dictionary(data: dict, result: bool):
+    assert is_a_dictionary(data) == result
+
+
+@pytest.mark.parametrize(
+    "data, result",
+    [
+        (["a%", "b ", "c_"], True),
+        (["a%", 1, "c_"], False),
+        ([], False),
+        (["a", "a", "c"], False),
+        (["a%", "bbB", "c_"], False),
+        (["a%", "B", "c_"], False),
+        ({"a", "b", "c"}, False),
+        ("string", False),
+        (None, False),
+        (23, False),
+        (np.NaN, False),
+    ],
+)
+def test_is_a_list_with_unique_lowercase_strings(data: list, result: bool):
+    assert is_a_list_with_unique_lowercase_strings(data) == result
+
+
+@pytest.mark.parametrize(
+    "data, result",
+    [
+        (["a", "b", "c"], True),
+        ([], False),
+        (["a", "bb[", "c"], False),
+        (["a", "bbB", "c"], False),
+        (["a", "a", "c"], False),
+        ({"a", "b", "c"}, False),
+        ("string", False),
+        (None, False),
+        (23, False),
+        (np.NaN, False),
+    ],
+)
+def test_is_a_list_with_unique_strings(data: str, result: bool):
+    assert is_a_list_with_unique_lowercase_db_strings(data) == result
+
+
+@pytest.mark.parametrize(
+    "data, result",
+    [
+        ("string_._string", True),
+        ("a1pha_numeric", False),
+        ("string.string.string", False),
+        ("string.STRING", False),
+        ("char%^{.string", False),
+        ("]", False),
+        (None, False),
+        (23, False),
+        (np.NaN, False),
+    ],
+)
+def test_is_valid_schema_and_table(data: str, result: bool):
+    assert is_valid_schema_and_table(data) == result
+
+
+@pytest.mark.parametrize(
+    "data, result",
+    [
+        ("a1pha_numeric", True),
+        ("A1PHA_NUMERIC", False),
+        ("a1pha.numeric", False),
+        ("{", False),
+        ("[", False),
+        ("(", False),
+        ("&", False),
+        (None, False),
+        (23, False),
+        (np.NaN, False),
+    ],
+)
+def test_is_a_lowercase_db_string(data: str, result: bool):
+    assert is_a_lowercase_db_string(data) == result

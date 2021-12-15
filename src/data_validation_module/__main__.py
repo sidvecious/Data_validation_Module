@@ -19,6 +19,10 @@ from data_validation_module.row_validations import (
     check_positive_int_or_Null,
     check_string_available_for_database,
     datestring_has_format_yyyy_mm_dd,
+    is_a_dictionary,
+    is_a_list_with_unique_lowercase_db_strings,
+    is_a_list_with_unique_lowercase_strings,
+    is_a_lowercase_db_string,
     is_greater_zero_or_null,
     is_neither_npnan_nor_none,
     is_string_represent_json,
@@ -30,6 +34,7 @@ from data_validation_module.row_validations import (
     is_valid_longitude,
     is_valid_percent_value_or_null,
     is_valid_ratio_value_or_null,
+    is_valid_schema_and_table,
     string_has_format_nnn_mmm,
 )
 
@@ -55,16 +60,21 @@ VALIDATION_DICT = {
     "is_string_represent_json": is_string_represent_json,
     "is_valid_dir_path": is_valid_dir_path,
     "is_valid_file_path": is_valid_file_path,
+    "is_a_dictionary": is_a_dictionary,
+    "is_a_list_with_unique_lowercase_strings": is_a_list_with_unique_lowercase_strings,
+    "is_a_list_with_unique_lowercase_db_strings": is_a_list_with_unique_lowercase_db_strings,
+    "is_valid_schema_and_table": is_valid_schema_and_table,
+    "is_a_lowercase_db_string": is_a_lowercase_db_string,
 }
 
 
 # this function load the json file with the complete configuration,
 # and provides a config dictionary for the main validation function
-def read_json_file(dataframe_config_path: Path) -> dict:
-    with open(dataframe_config_path, "r+") as dfj:
-        data_config = json.load(dfj)
-    logger.info(f"{dataframe_config_path} id founded by read_json_file")
-    return data_config
+def read_json_file(path: Path) -> dict:
+    with open(path, "r+") as dfj:
+        data_dictionary = json.load(dfj)
+    logger.info(f"{path} id founded by read_json_file")
+    return data_dictionary
 
 
 # for one column of the dataframe, iterate every row with the mapped function
@@ -152,9 +162,10 @@ def find_invalid_dict_values(
     # mapped function is a function this this structure :
     # <function {name_of_function} at 0x00001e8D...
     if mapped_function(target_value):
-        logger.info(f"{target_value} is a correct {table_name} value")
+        logger.info(f"{table_name} has correct value {target_value}")
         return []
     else:
+        logger.error(f"{table_name} has incorrect value {target_value}")
         return [table_name]
 
     pass
@@ -177,31 +188,46 @@ def validate_functions_for_dictionaries(
 
 
 # print the invalid values of the target dictionary, for validate dictionaries
-def print_invalid_dictionary(invalid_dataset_report: str, output_dir: Path):
-    complete_path = output_dir / "invalid_dictionaries.txt"
+def print_invalid_dictionary(
+    invalid_dataset_report: str, output_dir: Path, name_of_invalid_file: str
+):
+    complete_path = output_dir / name_of_invalid_file
     with open(complete_path, "w") as f:
         f.write(invalid_dataset_report)
 
 
 # check if the validation is valid
 def iterate_dict_validation(
-    table_validation: dict, target_dict: dict, invalid_dict_values: list
+    table_validation: dict, target_dict: dict, invalid_dict_values: list, rule: list
 ):
 
     fn_name = table_validation["validation"][0]
     table_name = table_validation["table_name"]
-    try:
-        target_value = target_dict[table_name]
-    except KeyError:
-        logger.error(f"target value {table_name} is not in the dictionary")
-        logger.error("check if the configuration file has the right table names")
-        sys.exit()
-    invalid_dict_values.extend(
-        validate_functions_for_dictionaries(table_name, fn_name, target_value)
-    )
-    logger.debug(
-        f"{invalid_dict_values}invalid_dict_values at the end for table {table_name}"
-    )
+    if table_validation["structure"] == "nested":
+        for nested_dict in target_dict:
+            sub_dictionary = target_dict[nested_dict]
+            if type(sub_dictionary) is dict:
+                for sub_target_k, sub_target_v in sub_dictionary.items():
+                    for sub_validation in rule:
+                        if sub_target_k == sub_validation["table_name"]:
+                            if sub_validation["table_name"] == table_name:
+                                sub_table_name = sub_validation["table_name"]
+                                sub_fn_name = sub_validation["validation"][0]
+                                invalid_dict_values.extend(
+                                    validate_functions_for_dictionaries(
+                                        sub_table_name, sub_fn_name, sub_target_v
+                                    )
+                                )
+    else:
+        try:
+            target_value = target_dict[table_name]
+        except KeyError:
+            logger.error(f"target value {table_name} is not in the dictionary")
+            logger.error("check if the configuration file has the right table names")
+            sys.exit()
+        invalid_dict_values.extend(
+            validate_functions_for_dictionaries(table_name, fn_name, target_value)
+        )
 
     return invalid_dict_values
 
@@ -209,11 +235,11 @@ def iterate_dict_validation(
 # check if ALL the validations in a rule are valid
 def iterate_dict_rule(rule: list, target_dict: dict, invalid_rule_report: str):
     at_least_a_rule_is_working = False
-    rule_name = "this is a placeholder, if you read it something goes wrong!"
+    rule_name = "this is a placeholder, something goes wrong with table validation!"
     invalid_dict_values = []
     for table_validation in rule:
         invalid_dict_values = iterate_dict_validation(
-            table_validation, target_dict, invalid_dict_values
+            table_validation, target_dict, invalid_dict_values, rule
         )
         # the rule name is always the same in a rule
         rule_name = table_validation["rule_name"]
@@ -269,8 +295,12 @@ def iterate_dictionary_config(target_dict: dict, dict_name: str, data_config: di
 
         if not no_constraint_failed:
             invalid_dataset_report = (
-                f"{dict_name} is an Invalid_dictionary:\n" + invalid_dataset_report
+                f"{dict_name} is Invalid:\n" + invalid_dataset_report
             )
+    else:
+        invalid_dataset_report = (
+            f"The name '{dict_name}' is not in the json configuration file!"
+        )
 
     return invalid_dataset_report
 
@@ -285,7 +315,30 @@ def check_dictionary(
     )
     if len(invalid_dataset_report) > 0:
         logger.error(invalid_dataset_report)
-        print_invalid_dictionary(invalid_dataset_report, output_dir)
+        print_invalid_dictionary(
+            invalid_dataset_report, output_dir, "invalid_dictionaries.txt"
+        )
     else:
         logger.info("Dictionary successfully validated")
     return target_dict
+
+
+def check_json_file(
+    json_target_path: Path,
+    json_target_name: str,
+    json_config_path: Path,
+    output_csv_dir: Path,
+):
+    data_config = read_json_file(json_config_path)
+    target_dict = read_json_file(json_target_path)
+    invalid_dataset_report = iterate_dictionary_config(
+        target_dict, json_target_name, data_config
+    )
+    if len(invalid_dataset_report) > 0:
+        logger.error(invalid_dataset_report)
+        print_invalid_dictionary(
+            invalid_dataset_report, output_csv_dir, "invalid_json.txt"
+        )
+    else:
+        logger.info("Json successfully validated")
+    return json_target_path

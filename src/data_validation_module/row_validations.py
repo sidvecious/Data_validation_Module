@@ -4,8 +4,6 @@ file with the row validation functions
 import re
 from datetime import datetime
 from pathlib import Path
-
-# from tabnanny import check
 from typing import Tuple, Union
 
 import numpy as np
@@ -182,4 +180,51 @@ def is_string_represent_json(string_of_json: str) -> bool:
         if re.match(regex, string_of_json):
             if string_of_json.endswith(".json"):
                 return True
+    return False
+
+
+def is_a_dictionary(dictionary: dict) -> bool:
+    return check_type_of_row(dictionary, "dict")
+
+
+def is_a_list_with_unique_lowercase_strings(array: list) -> bool:
+    if check_type_of_row(array, "list"):
+        if len(array) == len(set(array)) and len(array) != 0:
+            for list_element in array:
+                if not check_type_of_row(list_element, "str"):
+                    return False
+                if list_element.lower() != list_element:
+                    return False
+            return True
+    return False
+
+
+def is_a_list_with_unique_lowercase_db_strings(array: list) -> bool:
+    if check_type_of_row(array, "list"):
+        if len(array) == len(set(array)) and len(array) != 0:
+            for list_element in array:
+                if not is_a_lowercase_db_string(list_element):
+                    return False
+            return True
+    return False
+
+
+def is_valid_schema_and_table(db_relation: str) -> bool:
+    if check_type_of_row(db_relation, "str"):
+        if db_relation.count(".") == 1:
+            first_string = db_relation.split(".")[0]
+            second_string = db_relation.split(".")[1]
+            if is_a_lowercase_db_string(first_string) and is_a_lowercase_db_string(
+                second_string
+            ):
+                return True
+
+    return False
+
+
+def is_a_lowercase_db_string(string: str) -> bool:
+    if check_string_available_for_database(string):
+        if string.lower() == string:
+            return True
+
     return False

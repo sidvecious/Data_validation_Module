@@ -1,3 +1,4 @@
+import json
 import os
 from pathlib import Path, PosixPath
 
@@ -11,6 +12,7 @@ from data_validation_module.__main__ import (
     VALIDATION_DICT,
     check_dataframe,
     check_dictionary,
+    check_json_file,
     find_invalid_data_indices,
     find_invalid_dict_values,
     iterate_data_config,
@@ -366,20 +368,73 @@ def test_find_invalid_dict_values(
 def test_iterate_dict_validation_right(
     test_table_validation_database_id_test_rule_or_1: dict,
     test_target_dict_right: dict,
+    test_rule_database_id_test_rule_or_1: list
+    # test_rule_database_id_test_rule_or_1 added for json
 ):
     test_list = []
     test_result = iterate_dict_validation(
         test_table_validation_database_id_test_rule_or_1,
         test_target_dict_right,
         test_list,
+        test_rule_database_id_test_rule_or_1,
     )
     result_list = []
+    assert test_result == result_list
+
+
+def test_iterate_nested_dict_validation_right(
+    test_table_validation_nested_db_table_name_1: dict,
+    test_target_nested_dict_right: dict,
+    test_rule_nested_unique_rule_1: list,
+):
+    test_list = []
+    test_result = iterate_dict_validation(
+        test_table_validation_nested_db_table_name_1,
+        test_target_nested_dict_right,
+        test_list,
+        test_rule_nested_unique_rule_1,
+    )
+    result_list = []
+    assert test_result == result_list
+
+
+def test_iterate_nested_dict_validation_wrong_db_table_name(
+    test_table_validation_nested_db_table_name_1: dict,
+    test_target_nested_dict_wrong_db_table_name: dict,
+    test_rule_nested_unique_rule_1: list,
+):
+    test_list = []
+    test_result = iterate_dict_validation(
+        test_table_validation_nested_db_table_name_1,
+        test_target_nested_dict_wrong_db_table_name,
+        test_list,
+        test_rule_nested_unique_rule_1,
+    )
+    result_list = ["db_table_name"]
+    assert test_result == result_list
+
+
+def test_iterate_nested_dict_validation_number_wrong(
+    test_table_validation_nested_number_1: dict,
+    test_target_nested_dict_two_tables_wrong: dict,
+    test_rule_nested_unique_rule_1: list,
+):
+    test_list = []
+    test_result = iterate_dict_validation(
+        test_table_validation_nested_number_1,
+        test_target_nested_dict_two_tables_wrong,
+        test_list,
+        test_rule_nested_unique_rule_1,
+    )
+    result_list = ["number"]
     assert test_result == result_list
 
 
 def test_iterate_dict_validation_wrong_key(
     test_table_validation_database_id_test_rule_or_1: dict,
     test_target_dict_wrong_key: dict,
+    test_rule_database_id_test_rule_or_1: list
+    # test_rule_database_id_test_rule_or_1 added for json
 ):
     test_list = []
     with pytest.raises(SystemExit) as ext:
@@ -387,6 +442,7 @@ def test_iterate_dict_validation_wrong_key(
             test_table_validation_database_id_test_rule_or_1,
             test_target_dict_wrong_key,
             test_list,
+            test_rule_database_id_test_rule_or_1,
         )
         assert ext.type == SystemExit
 
@@ -536,6 +592,56 @@ def test_iterate_dict_constraint_wrong_db_id_and_string2(
     assert not no_constraint_failed
 
 
+def test_iterate_nested_dict_constraint_right_1(
+    test_constraint_nested_double_layer_1: dict,
+    test_target_nested_dict_right: dict,
+):
+    invalid_dataset_report = ""
+    no_constraint_failed = True
+    invalid_dataset_report, no_constraint_failed = iterate_dict_constraint(
+        test_constraint_nested_double_layer_1,
+        test_target_nested_dict_right,
+        invalid_dataset_report,
+        no_constraint_failed,
+    )
+    assert invalid_dataset_report == ""
+
+
+def test_iterate_nested_dict_constraint_wrong_1(
+    test_constraint_nested_double_layer_1: dict,
+    test_target_nested_dict_wrong_db_table_name: dict,
+    test_invalid_nested_dictionary_constraint_failed: str,
+):
+    invalid_dataset_report = ""
+    no_constraint_failed = True
+    invalid_dataset_report, no_constraint_failed = iterate_dict_constraint(
+        test_constraint_nested_double_layer_1,
+        test_target_nested_dict_wrong_db_table_name,
+        invalid_dataset_report,
+        no_constraint_failed,
+    )
+    assert invalid_dataset_report == test_invalid_nested_dictionary_constraint_failed
+
+
+def test_iterate_nested_dict_constraint_wrong_2(
+    test_constraint_nested_double_layer_1: dict,
+    test_target_nested_dict_two_tables_wrong: dict,
+    test_invalid_nested_dictionary_constraint_failed_two_times: str,
+):
+    invalid_dataset_report = ""
+    no_constraint_failed = True
+    invalid_dataset_report, no_constraint_failed = iterate_dict_constraint(
+        test_constraint_nested_double_layer_1,
+        test_target_nested_dict_two_tables_wrong,
+        invalid_dataset_report,
+        no_constraint_failed,
+    )
+    assert (
+        invalid_dataset_report
+        == test_invalid_nested_dictionary_constraint_failed_two_times
+    )
+
+
 @pytest.mark.parametrize(
     "test_table_name, test_fn_name, test_target_value, test_result",
     [
@@ -559,24 +665,30 @@ def test_validate_functions_for_dictionaries(
     "test_invalid_dataset_report, test_result",
     [("print_test_1, print_test_2", "print_test_1, print_test_2"), ("", "")],
 )
-def test_print_invalid_dictionary(test_invalid_dataset_report: str, test_result: str):
+def test_print_invalid_dictionary(
+    test_invalid_dataset_report: str,
+    test_result: str,
+    test_invalid_dictionary_name: str,
+):
     # 1. remove invalid_dictionaries.txt
     test_output_dir = Path("test_files")
     try:
-        os.remove(test_output_dir / "invalid_dictionaries.txt")
+        os.remove(test_output_dir / test_invalid_dictionary_name)
     except IOError:
         pass
 
     # 2. assert invalid_dictionaries.txt contents == test_result
-    print_invalid_dictionary(test_invalid_dataset_report, test_output_dir)
-    test_complete_path = test_output_dir / "invalid_dictionaries.txt"
+    print_invalid_dictionary(
+        test_invalid_dataset_report, test_output_dir, test_invalid_dictionary_name
+    )
+    test_complete_path = test_output_dir / test_invalid_dictionary_name
     with open(test_complete_path) as f:
         file_contents = " ".join(line.strip() for line in f)
 
     assert file_contents == test_result
 
     # 3. remove invalid_dictionaries.txt
-    os.remove(test_output_dir / "invalid_dictionaries.txt")
+    os.remove(test_output_dir / test_invalid_dictionary_name)
 
 
 def test_iterate_dictionary_config_right_dict_1(
@@ -656,10 +768,10 @@ def test_check_dictionary_wrong_values_dict_2(
     test_dictionary_config_path: Path,
     test_output_dir: Path,
 ):
+    invalid_dictionary = "invalid_dictionaries.txt"
     # 1. remove invalid_dictionaries.txt
-    test_output_dir = Path("test_files")
     try:
-        os.remove(test_output_dir / "invalid_dictionaries.txt")
+        os.remove(test_output_dir / invalid_dictionary)
     except FileNotFoundError:
         pass
 
@@ -672,15 +784,15 @@ def test_check_dictionary_wrong_values_dict_2(
     )
 
     # 3. assert
-    result = "test_target_dict_2 is an Invalid_dictionary: The Constraint test_constraint_or is not valid, because all the rules fails: Invalid rule test_rule_or_1: for validations ['database_id'] Invalid rule test_rule_or_2: for validations ['db_string']"
-    test_complete_path = test_output_dir / "invalid_dictionaries.txt"
+    result = "test_target_dict_2 is Invalid: The Constraint test_constraint_or is not valid, because all the rules fails: Invalid rule test_rule_or_1: for validations ['database_id'] Invalid rule test_rule_or_2: for validations ['db_string']"
+    test_complete_path = test_output_dir / invalid_dictionary
     with open(test_complete_path, "r") as f:
         file_contents = " ".join(line.strip() for line in f)
 
     assert file_contents == result
 
     # 4. remove invalid_dictionaries.txt
-    os.remove(test_output_dir / "invalid_dictionaries.txt")
+    os.remove(test_output_dir / invalid_dictionary)
 
 
 def test_check_dictionary_with_wrong_key_dict_1(
@@ -697,3 +809,94 @@ def test_check_dictionary_with_wrong_key_dict_1(
             test_output_dir,
         )
         assert ext.type == SystemExit
+
+
+def test_check_target_json_right(
+    test_target_json_path: Path,
+    test_nested_dict_name_1: str,
+    test_dictionary_config_path: Path,
+    test_output_dir: Path,
+):
+    validate_dict = check_json_file(
+        test_target_json_path,
+        test_nested_dict_name_1,
+        test_dictionary_config_path,
+        test_output_dir,
+    )
+    assert validate_dict == test_target_json_path
+
+
+def test_check_target_json_wrong_values_1(
+    test_temporary_json_config_path: Path,
+    test_nested_dict_name_1: str,
+    test_dictionary_config_path: Path,
+    test_output_dir: Path,
+    test_target_nested_dict_two_tables_wrong: dict,
+):
+    invalid_json = "invalid_json.txt"
+    # 1. remove invalid_json.txt and test_temporary_json_config
+    try:
+        os.remove(test_output_dir / invalid_json)
+    except FileNotFoundError:
+        pass
+    try:
+        os.remove(test_temporary_json_config_path)
+    except FileNotFoundError:
+        pass
+
+    # 2. create wrong json_file
+    with open(test_temporary_json_config_path, "w") as outfile:
+        json.dump(test_target_nested_dict_two_tables_wrong, outfile)
+
+    # 3. call check_json_file
+    check_json_file(
+        test_temporary_json_config_path,
+        test_nested_dict_name_1,
+        test_dictionary_config_path,
+        test_output_dir,
+    )
+
+    # 4. assert
+    result = "test_target_nested_dict_1 is Invalid: The Constraint double_layer is not valid, because all the rules fails: Invalid rule unique_rule: for validations ['db_table_name', 'number']"
+    test_complete_path = test_output_dir / invalid_json
+    with open(test_complete_path, "r") as f:
+        file_contents = " ".join(line.strip() for line in f)
+
+    assert file_contents == result
+
+    # 5. remove invalid_json.txt and test_temporary_json_config.json
+    os.remove(test_output_dir / invalid_json)
+    os.remove(test_temporary_json_config_path)
+
+
+def test_check_wrong_dictionary_or_json_name(
+    test_target_json_path: Path,
+    test_wrong_dict_name: str,
+    test_dictionary_config_path: Path,
+    test_output_dir: Path,
+):
+    invalid_json = "invalid_json.txt"
+    # 1. remove invalid_json.txt
+    try:
+        os.remove(test_output_dir / invalid_json)
+    except FileNotFoundError:
+        pass
+
+    # 2. call check_json_file
+    check_json_file(
+        test_target_json_path,
+        test_wrong_dict_name,
+        test_dictionary_config_path,
+        test_output_dir,
+    )
+
+    # 3. assert
+    result = f"The name '{test_wrong_dict_name}' is not in the json configuration file!"
+    test_complete_path = test_output_dir / invalid_json
+    with open(test_complete_path, "r") as f:
+        file_contents = " ".join(line.strip() for line in f)
+
+    assert file_contents == result
+
+    # 4. remove invalid_json.txt and test_temporary_json_config.json
+    os.remove(test_output_dir / invalid_json)
