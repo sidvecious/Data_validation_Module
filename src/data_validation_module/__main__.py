@@ -68,7 +68,7 @@ VALIDATION_DICT = {
 }
 
 
-# this function load the json file with the complete configuration,
+# this function is mainly used to load the json file with the complete configuration,
 # and provides a config dictionary for the main validation function
 def read_json_file(path: Path) -> dict:
     with open(path, "r+") as dfj:
@@ -162,10 +162,10 @@ def find_invalid_dict_values(
     # mapped function is a function this this structure :
     # <function {name_of_function} at 0x00001e8D...
     if mapped_function(target_value):
-        logger.info(f"{table_name} has correct value {target_value}")
+        logger.info(f"{table_name} has correct value: {target_value}")
         return []
     else:
-        logger.error(f"{table_name} has incorrect value {target_value}")
+        logger.error(f"{table_name} has incorrect value: {target_value}")
         return [table_name]
 
     pass
@@ -200,8 +200,6 @@ def print_invalid_dictionary(
 def iterate_dict_validation(
     table_validation: dict, target_dict: dict, invalid_dict_values: list, rule: list
 ):
-
-    fn_name = table_validation["validation"][0]
     table_name = table_validation["table_name"]
     if table_validation["structure"] == "nested":
         for nested_dict in target_dict:
@@ -209,16 +207,18 @@ def iterate_dict_validation(
             if type(sub_dictionary) is dict:
                 for sub_target_k, sub_target_v in sub_dictionary.items():
                     for sub_validation in rule:
-                        if sub_target_k == sub_validation["table_name"]:
-                            if sub_validation["table_name"] == table_name:
-                                sub_table_name = sub_validation["table_name"]
-                                sub_fn_name = sub_validation["validation"][0]
-                                invalid_dict_values.extend(
-                                    validate_functions_for_dictionaries(
-                                        sub_table_name, sub_fn_name, sub_target_v
-                                    )
+                        if (
+                            sub_target_k == sub_validation["table_name"]
+                            and sub_validation["table_name"] == table_name
+                        ):
+                            sub_fn_name = sub_validation["validation"][0]
+                            invalid_dict_values.extend(
+                                validate_functions_for_dictionaries(
+                                    sub_target_k, sub_fn_name, sub_target_v
                                 )
+                            )
     else:
+        fn_name = table_validation["validation"][0]
         try:
             target_value = target_dict[table_name]
         except KeyError:
@@ -310,35 +310,30 @@ def check_dictionary(
     target_dict: dict, dict_name: str, dictionary_config_path: Path, output_dir: Path
 ):
     data_config = read_json_file(dictionary_config_path)
-    invalid_dataset_report = iterate_dictionary_config(
-        target_dict, dict_name, data_config
-    )
-    if len(invalid_dataset_report) > 0:
-        logger.error(invalid_dataset_report)
-        print_invalid_dictionary(
-            invalid_dataset_report, output_dir, "invalid_dictionaries.txt"
-        )
+    invalid_report = iterate_dictionary_config(target_dict, dict_name, data_config)
+    if len(invalid_report) > 0:
+        logger.error(invalid_report)
+        print_invalid_dictionary(invalid_report, output_dir, "invalid_dictionaries.txt")
     else:
         logger.info("Dictionary successfully validated")
     return target_dict
 
 
+# main function for validate json files
 def check_json_file(
     json_target_path: Path,
     json_target_name: str,
     json_config_path: Path,
-    output_csv_dir: Path,
+    output_dir: Path,
 ):
     data_config = read_json_file(json_config_path)
     target_dict = read_json_file(json_target_path)
-    invalid_dataset_report = iterate_dictionary_config(
+    invalid_report = iterate_dictionary_config(
         target_dict, json_target_name, data_config
     )
-    if len(invalid_dataset_report) > 0:
-        logger.error(invalid_dataset_report)
-        print_invalid_dictionary(
-            invalid_dataset_report, output_csv_dir, "invalid_json.txt"
-        )
+    if len(invalid_report) > 0:
+        logger.error(invalid_report)
+        print_invalid_dictionary(invalid_report, output_dir, "invalid_json.txt")
     else:
         logger.info("Json successfully validated")
     return json_target_path

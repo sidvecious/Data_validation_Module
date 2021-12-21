@@ -262,20 +262,21 @@ def test_split_invalid_data_row_0(
     test_invalid_df: pd.DataFrame,
     test_df_with_invalid_column_filled: pd.DataFrame,
     test_output_dir: Path,
+    test_invalid_rows_csv_file_name: str,
 ):
     # 1. remove invalid_rows.csv
     try:
-        os.remove(test_output_dir / "invalid_rows.csv")
+        os.remove(test_output_dir / test_invalid_rows_csv_file_name)
     except IOError:
         pass
 
     # 2. assert invalid_rows.csv
     split_invalid_data_rows(test_df_with_invalid_column_filled, test_output_dir)
-    df = pd.read_csv(test_output_dir / "invalid_rows.csv", index_col=0)
+    df = pd.read_csv(test_output_dir / test_invalid_rows_csv_file_name, index_col=0)
     assert df.shape == test_invalid_df.shape
 
     # 3. remove invalid_rows.csv
-    os.remove(test_output_dir / "invalid_rows.csv")
+    os.remove(test_output_dir / test_invalid_rows_csv_file_name)
 
 
 def test_split_invalid_data_row_1(
@@ -305,6 +306,7 @@ def test_check_dataframe(
     test_dataframe_config_path: Path,
     test_output_dir: Path,
     test_valid_df: pd.DataFrame,
+    test_invalid_rows_csv_file_name: str,
 ):
     df = check_dataframe(
         test_df_name, test_df, test_dataframe_config_path, test_output_dir
@@ -314,7 +316,7 @@ def test_check_dataframe(
     assert df.shape == test_valid_df.shape
 
     # 2. remove invalid_rows.csv
-    os.remove(test_output_dir / "invalid_rows.csv")
+    os.remove(test_output_dir / test_invalid_rows_csv_file_name)
 
 
 @pytest.mark.parametrize(
@@ -668,27 +670,29 @@ def test_validate_functions_for_dictionaries(
 def test_print_invalid_dictionary(
     test_invalid_dataset_report: str,
     test_result: str,
-    test_invalid_dictionary_name: str,
+    test_invalid_dictionaries_txt_file_name: str,
+    test_output_dir: Path,
 ):
     # 1. remove invalid_dictionaries.txt
-    test_output_dir = Path("test_files")
     try:
-        os.remove(test_output_dir / test_invalid_dictionary_name)
+        os.remove(test_output_dir / test_invalid_dictionaries_txt_file_name)
     except IOError:
         pass
 
     # 2. assert invalid_dictionaries.txt contents == test_result
     print_invalid_dictionary(
-        test_invalid_dataset_report, test_output_dir, test_invalid_dictionary_name
+        test_invalid_dataset_report,
+        test_output_dir,
+        test_invalid_dictionaries_txt_file_name,
     )
-    test_complete_path = test_output_dir / test_invalid_dictionary_name
+    test_complete_path = test_output_dir / test_invalid_dictionaries_txt_file_name
     with open(test_complete_path) as f:
         file_contents = " ".join(line.strip() for line in f)
 
     assert file_contents == test_result
 
     # 3. remove invalid_dictionaries.txt
-    os.remove(test_output_dir / test_invalid_dictionary_name)
+    os.remove(test_output_dir / test_invalid_dictionaries_txt_file_name)
 
 
 def test_iterate_dictionary_config_right_dict_1(
@@ -767,11 +771,11 @@ def test_check_dictionary_wrong_values_dict_2(
     test_dict_name_2: str,
     test_dictionary_config_path: Path,
     test_output_dir: Path,
+    test_invalid_dictionaries_txt_file_name: str,
 ):
-    invalid_dictionary = "invalid_dictionaries.txt"
     # 1. remove invalid_dictionaries.txt
     try:
-        os.remove(test_output_dir / invalid_dictionary)
+        os.remove(test_output_dir / test_invalid_dictionaries_txt_file_name)
     except FileNotFoundError:
         pass
 
@@ -785,14 +789,14 @@ def test_check_dictionary_wrong_values_dict_2(
 
     # 3. assert
     result = "test_target_dict_2 is Invalid: The Constraint test_constraint_or is not valid, because all the rules fails: Invalid rule test_rule_or_1: for validations ['database_id'] Invalid rule test_rule_or_2: for validations ['db_string']"
-    test_complete_path = test_output_dir / invalid_dictionary
+    test_complete_path = test_output_dir / test_invalid_dictionaries_txt_file_name
     with open(test_complete_path, "r") as f:
         file_contents = " ".join(line.strip() for line in f)
 
     assert file_contents == result
 
     # 4. remove invalid_dictionaries.txt
-    os.remove(test_output_dir / invalid_dictionary)
+    os.remove(test_output_dir / test_invalid_dictionaries_txt_file_name)
 
 
 def test_check_dictionary_with_wrong_key_dict_1(
@@ -832,11 +836,11 @@ def test_check_target_json_wrong_values_1(
     test_dictionary_config_path: Path,
     test_output_dir: Path,
     test_target_nested_dict_two_tables_wrong: dict,
+    test_invalid_json_txt_file_name: str,
 ):
-    invalid_json = "invalid_json.txt"
     # 1. remove invalid_json.txt and test_temporary_json_config
     try:
-        os.remove(test_output_dir / invalid_json)
+        os.remove(test_output_dir / test_invalid_json_txt_file_name)
     except FileNotFoundError:
         pass
     try:
@@ -858,14 +862,14 @@ def test_check_target_json_wrong_values_1(
 
     # 4. assert
     result = "test_target_nested_dict_1 is Invalid: The Constraint double_layer is not valid, because all the rules fails: Invalid rule unique_rule: for validations ['db_table_name', 'number']"
-    test_complete_path = test_output_dir / invalid_json
+    test_complete_path = test_output_dir / test_invalid_json_txt_file_name
     with open(test_complete_path, "r") as f:
         file_contents = " ".join(line.strip() for line in f)
 
     assert file_contents == result
 
     # 5. remove invalid_json.txt and test_temporary_json_config.json
-    os.remove(test_output_dir / invalid_json)
+    os.remove(test_output_dir / test_invalid_json_txt_file_name)
     os.remove(test_temporary_json_config_path)
 
 
@@ -874,11 +878,11 @@ def test_check_wrong_dictionary_or_json_name(
     test_wrong_dict_name: str,
     test_dictionary_config_path: Path,
     test_output_dir: Path,
+    test_invalid_json_txt_file_name: str,
 ):
-    invalid_json = "invalid_json.txt"
     # 1. remove invalid_json.txt
     try:
-        os.remove(test_output_dir / invalid_json)
+        os.remove(test_output_dir / test_invalid_json_txt_file_name)
     except FileNotFoundError:
         pass
 
@@ -892,11 +896,11 @@ def test_check_wrong_dictionary_or_json_name(
 
     # 3. assert
     result = f"The name '{test_wrong_dict_name}' is not in the json configuration file!"
-    test_complete_path = test_output_dir / invalid_json
+    test_complete_path = test_output_dir / test_invalid_json_txt_file_name
     with open(test_complete_path, "r") as f:
         file_contents = " ".join(line.strip() for line in f)
 
     assert file_contents == result
 
     # 4. remove invalid_json.txt and test_temporary_json_config.json
-    os.remove(test_output_dir / invalid_json)
+    os.remove(test_output_dir / test_invalid_json_txt_file_name)
