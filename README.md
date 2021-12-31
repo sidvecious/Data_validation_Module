@@ -65,7 +65,8 @@ During validation, the following parameters are checked:
     C. semantic restriction of the values
 Json Configuration File:
 Preserves the same characteristics of dictionaries,
-key/value data structures nested up to the first level can be validated with "attribute: nested".  
+key/value data structures nested up to the first level can be validated with "attribute: nested". 
+
 ----
 
 ## Development
