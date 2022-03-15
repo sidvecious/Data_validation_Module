@@ -90,21 +90,6 @@ key/value data structures nested up to the first level can be validated with "at
 
 ----
 
-## Usage
-
-### Cloning This Repo
-
-```bash
-git clone --recurse-submodules https://www.gitlab.com/cquest1/prototypes/data_validation_module.git
-```
-
-### Installing the python package
-
-```bash
-python -m pip install git+https://gitlab.com/cquest1/prototypes/data_validation_module@0.1.16
-```
-
-
 ### Examples
 
 - ADD SOME REPRESENTATIVE EXAMPLES HERE!
